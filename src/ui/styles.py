@@ -156,20 +156,24 @@ QPushButton#success:hover {{
 }}
 
 QPushButton#sidebar {{
-    background-color: transparent;
-    border: none;
+    background-color: {COLORS["bg_input"]};
+    border: 1px solid {COLORS["border"]};
     border-radius: 8px;
-    padding: 12px 16px;
+    padding: 14px 18px;
     text-align: left;
     font-weight: 500;
+    font-size: 14px;
 }}
 
 QPushButton#sidebar:hover {{
     background-color: {COLORS["bg_hover"]};
+    border-color: {COLORS["text_muted"]};
 }}
 
 QPushButton#sidebar:checked {{
     background-color: {COLORS["primary"]};
+    border-color: {COLORS["primary"]};
+    color: white;
 }}
 
 /* Cards */

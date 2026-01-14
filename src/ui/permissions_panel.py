@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSlot
 
 from .styles import COLORS
+from .workers import PermissionsDataWorker
 from ..modules.permissions_manager import PermissionsManager, PermissionType
 
 
@@ -42,8 +43,9 @@ class PermissionsPanel(QWidget):
         super().__init__(parent)
         self.manager = PermissionsManager()
         self.current_type = PermissionType.CAMERA
+        self._worker = None
+        self._is_loading = False
         self._setup_ui()
-        self.refresh_data()
     
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -99,6 +101,13 @@ class PermissionsPanel(QWidget):
         
         layout.addWidget(global_card)
         
+        # Loading indicator
+        self.loading_label = QLabel("Loading...")
+        self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.loading_label.setObjectName("muted")
+        self.loading_label.setVisible(False)
+        layout.addWidget(self.loading_label)
+        
         # Apps List
         list_label = QLabel("Apps with Access")
         list_label.setStyleSheet("font-weight: bold; margin-top: 16px;")
@@ -122,7 +131,7 @@ class PermissionsPanel(QWidget):
     def on_global_toggle(self, checked):
         success, msg = self.manager.set_permission_global_state(self.current_type, checked)
         if not success:
-            QMessageBox.warning(self, "Error", dict(msg))
+            QMessageBox.warning(self, "Error", str(msg))
             # Revert toggle if failed
             self.global_toggle.blockSignals(True)
             self.global_toggle.setChecked(not checked)
@@ -131,8 +140,27 @@ class PermissionsPanel(QWidget):
             self.refresh_data()
     
     def refresh_data(self):
-        """Reload permissions data."""
-        status = self.manager.get_permission_status(self.current_type)
+        """Reload permissions data in background."""
+        if self._is_loading:
+            return
+        
+        self._is_loading = True
+        self.loading_label.setVisible(True)
+        self.type_combo.setEnabled(False)
+        self.global_toggle.setEnabled(False)
+        
+        self._worker = PermissionsDataWorker(self.manager, self.current_type)
+        self._worker.finished.connect(self._on_data_loaded)
+        self._worker.start()
+    
+    @pyqtSlot(object, list)
+    def _on_data_loaded(self, status, apps: list):
+        """Handle loaded data."""
+        self._is_loading = False
+        self.loading_label.setVisible(False)
+        self.type_combo.setEnabled(True)
+        self.global_toggle.setEnabled(True)
+        
         if not status:
             return
             
@@ -148,9 +176,6 @@ class PermissionsPanel(QWidget):
             item = self.content_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
-        
-        # Load apps
-        apps = self.manager.get_apps_for_permission(self.current_type)
         
         if not apps:
             no_apps = QLabel("No apps found with this permission")

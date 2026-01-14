@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSlot, QThread, pyqtSignal
 
 from .styles import COLORS
+from .workers import CleanupDataWorker
 from ..modules.tracking_cleaner import TrackingCleaner, CleanupItem
 
 
@@ -34,8 +35,9 @@ class CleanupPanel(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.cleaner = TrackingCleaner()
+        self._worker = None
+        self._is_loading = False
         self._setup_ui()
-        self.refresh_data()
     
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -74,6 +76,13 @@ class CleanupPanel(QWidget):
         layout.addWidget(self.progress_bar)
         layout.addWidget(self.progress_label)
         
+        # Loading indicator
+        self.loading_label = QLabel("Loading...")
+        self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.loading_label.setObjectName("muted")
+        self.loading_label.setVisible(False)
+        layout.addWidget(self.loading_label)
+        
         # Content Area
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -87,14 +96,30 @@ class CleanupPanel(QWidget):
         layout.addWidget(scroll)
     
     def refresh_data(self):
-        """Reload cleanup items status."""
+        """Reload cleanup items status in background."""
+        if self._is_loading:
+            return
+        
+        self._is_loading = True
+        self.loading_label.setVisible(True)
+        self.clean_btn.setEnabled(False)
+        
+        self._worker = CleanupDataWorker(self.cleaner)
+        self._worker.finished.connect(self._on_data_loaded)
+        self._worker.start()
+    
+    @pyqtSlot(list)
+    def _on_data_loaded(self, items: list):
+        """Handle loaded data."""
+        self._is_loading = False
+        self.loading_label.setVisible(False)
+        self.clean_btn.setEnabled(True)
+        
         # Clear existing items
         while self.content_layout.count() > 1:
             item = self.content_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
-        
-        items = self.cleaner.get_cleanup_status()
         
         for item in items:
             widget = self._create_item_widget(item)

@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, 
     QPushButton, QStackedWidget, QLabel, QFrame
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtGui import QIcon
 
 from .styles import MAIN_STYLESHEET, COLORS
@@ -16,6 +16,7 @@ from .telemetry_panel import TelemetryPanel
 from .permissions_panel import PermissionsPanel
 from .cleanup_panel import CleanupPanel
 from .firewall_panel import FirewallPanel
+from .workers import DashboardDataWorker
 from ..modules.telemetry_blocker import TelemetryBlocker
 from ..modules.permissions_manager import PermissionsManager
 from ..modules.firewall_manager import FirewallManager
@@ -31,6 +32,7 @@ class MainWindow(QMainWindow):
         self.resize(1200, 800)
         self.setStyleSheet(MAIN_STYLESHEET)
         
+        self._dashboard_worker = None
         self._init_managers()
         self._setup_ui()
     
@@ -91,7 +93,7 @@ class MainWindow(QMainWindow):
         # Content Area
         self.stack = QStackedWidget()
         
-        # Initialize panels
+        # Initialize panels (don't refresh data on init - lazy load)
         self.dashboard_panel = DashboardPanel()
         self.telemetry_panel = TelemetryPanel()
         self.permissions_panel = PermissionsPanel()
@@ -141,9 +143,10 @@ class MainWindow(QMainWindow):
                 b.setChecked(False)
             btn.setChecked(True)
             
+            # Switch panel FIRST (instant UI response)
             self.stack.setCurrentIndex(index)
             
-            # Refresh data when switching
+            # THEN refresh data in background
             if index == 0:
                 self.update_dashboard_stats()
             elif index == 1:
@@ -156,12 +159,16 @@ class MainWindow(QMainWindow):
                 self.firewall_panel.refresh_data()
     
     def update_dashboard_stats(self):
-        """Update stats on the dashboard panel."""
-        t_score = self.telemetry.get_privacy_score()
-        p_score = self.permissions.get_privacy_score()
-        f_counts = self.firewall.get_blocked_count()
-        c_size = self.cleaner.get_total_cleanup_size()
-        
+        """Update stats on the dashboard panel in background."""
+        self._dashboard_worker = DashboardDataWorker(
+            self.telemetry, self.permissions, self.firewall, self.cleaner
+        )
+        self._dashboard_worker.finished.connect(self._on_dashboard_stats_loaded)
+        self._dashboard_worker.start()
+    
+    @pyqtSlot(int, int, tuple, int)
+    def _on_dashboard_stats_loaded(self, t_score: int, p_score: int, f_counts: tuple, c_size: int):
+        """Handle loaded dashboard stats."""
         self.dashboard_panel.update_scores(t_score, p_score, f_counts, c_size)
     
     def handle_quick_action(self, action_id: str):

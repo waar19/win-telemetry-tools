@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSlot
 
 from .styles import COLORS
+from .workers import FirewallDataWorker
 from ..modules.firewall_manager import FirewallManager, FirewallRule
 
 
@@ -20,8 +21,10 @@ class FirewallPanel(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.manager = FirewallManager()
+        self._worker = None
+        self._is_loading = False
+        self._has_admin = None
         self._setup_ui()
-        self.refresh_data()
     
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -55,21 +58,25 @@ class FirewallPanel(QWidget):
         
         layout.addLayout(header_layout)
         
-        # Admin Warning
-        if not self.manager.check_admin_rights():
-            warn_frame = QFrame()
-            warn_frame.setObjectName("card")
-            warn_frame.setStyleSheet(f"border: 1px solid {COLORS['warning']};")
-            warn_layout = QHBoxLayout(warn_frame)
-            warn_icon = QLabel("⚠️")
-            warn_text = QLabel("Administrator privileges required to manage firewall rules")
-            warn_layout.addWidget(warn_icon)
-            warn_layout.addWidget(warn_text)
-            warn_layout.addStretch()
-            layout.addWidget(warn_frame)
-            
-            self.block_btn.setEnabled(False)
-            self.unblock_btn.setEnabled(False)
+        # Admin Warning placeholder (will be shown if needed)
+        self.warn_frame = QFrame()
+        self.warn_frame.setObjectName("card")
+        self.warn_frame.setStyleSheet(f"border: 1px solid {COLORS['warning']};")
+        warn_layout = QHBoxLayout(self.warn_frame)
+        warn_icon = QLabel("⚠️")
+        warn_text = QLabel("Administrator privileges required to manage firewall rules")
+        warn_layout.addWidget(warn_icon)
+        warn_layout.addWidget(warn_text)
+        warn_layout.addStretch()
+        self.warn_frame.setVisible(False)
+        layout.addWidget(self.warn_frame)
+        
+        # Loading indicator
+        self.loading_label = QLabel("Loading...")
+        self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.loading_label.setObjectName("muted")
+        self.loading_label.setVisible(False)
+        layout.addWidget(self.loading_label)
         
         # Rules Table
         self.table = QTableWidget()
@@ -85,10 +92,33 @@ class FirewallPanel(QWidget):
         self.table.setShowGrid(False)
         
         layout.addWidget(self.table)
-    
+   
     def refresh_data(self):
-        """Reload firewall rules status."""
-        rules = self.manager.get_all_rules_status()
+        """Reload firewall rules status in background."""
+        if self._is_loading:
+            return
+        
+        # Check admin rights once (cached after first check)
+        if self._has_admin is None:
+            self._has_admin = self.manager.check_admin_rights()
+            if not self._has_admin:
+                self.warn_frame.setVisible(True)
+                self.block_btn.setEnabled(False)
+                self.unblock_btn.setEnabled(False)
+        
+        self._is_loading = True
+        self.loading_label.setVisible(True)
+        
+        self._worker = FirewallDataWorker(self.manager)
+        self._worker.finished.connect(self._on_data_loaded)
+        self._worker.start()
+    
+    @pyqtSlot(list)
+    def _on_data_loaded(self, rules: list):
+        """Handle loaded data."""
+        self._is_loading = False
+        self.loading_label.setVisible(False)
+        
         self.table.setRowCount(len(rules))
         
         for i, rule in enumerate(rules):

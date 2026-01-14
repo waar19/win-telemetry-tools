@@ -245,6 +245,16 @@ class TelemetryBlocker:
     def _disable_service(self, service_name: str) -> Tuple[bool, str]:
         """Disable a Windows service."""
         try:
+            # Check if service exists first
+            check = subprocess.run(
+                ["sc", "query", service_name],
+                capture_output=True,
+                text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
+            if "does not exist" in check.stderr.lower() or check.returncode == 1060:
+                return True, ""  # Service doesn't exist, consider it disabled
+            
             # Stop the service first
             subprocess.run(
                 ["sc", "stop", service_name],
@@ -309,6 +319,9 @@ class TelemetryBlocker:
             )
             if result.returncode == 0:
                 return True, ""
+            # Silently succeed if task doesn't exist
+            if "does not exist" in result.stderr.lower() or "cannot find" in result.stderr.lower():
+                return True, ""
             return False, result.stderr
         except Exception as e:
             return False, str(e)
@@ -323,6 +336,9 @@ class TelemetryBlocker:
                 creationflags=subprocess.CREATE_NO_WINDOW
             )
             if result.returncode == 0:
+                return True, ""
+            # Silently succeed if task doesn't exist
+            if "does not exist" in result.stderr.lower() or "cannot find" in result.stderr.lower():
                 return True, ""
             return False, result.stderr
         except Exception as e:
