@@ -5,9 +5,21 @@ Handles translations and language switching.
 
 import json
 import os
+import sys
 import locale
 from typing import Dict, Optional
 from pathlib import Path
+
+
+def get_i18n_dir() -> Path:
+    """Get the i18n directory path, works both in dev and bundled mode."""
+    if getattr(sys, 'frozen', False):
+        # Running as bundled exe
+        base_path = Path(sys._MEIPASS)
+        return base_path / 'i18n'
+    else:
+        # Running in development
+        return Path(__file__).parent
 
 
 class Translator:
@@ -36,7 +48,7 @@ class Translator:
         self._initialized = True
         self._translations: Dict[str, Dict] = {}
         self._current_language = self.DEFAULT_LANGUAGE
-        self._i18n_dir = Path(__file__).parent
+        self._i18n_dir = get_i18n_dir()
         
         # Load all translations
         self._load_translations()
@@ -55,6 +67,8 @@ class Translator:
                 except Exception as e:
                     print(f"Error loading {lang_code}.json: {e}")
                     self._translations[lang_code] = {}
+            else:
+                print(f"Warning: Translation file not found: {file_path}")
     
     def _detect_language(self):
         """Detect system language and set if supported."""

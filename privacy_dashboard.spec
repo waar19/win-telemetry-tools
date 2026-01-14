@@ -6,7 +6,9 @@ a = Analysis(
     ['src/main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('src/i18n/*.json', 'i18n'),  # Include translation files
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
