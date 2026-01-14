@@ -11,6 +11,7 @@
     "firewall": "Firewall",
     "network": "Netzwerkmonitor",
     "updates": "Windows Updates",
+    "apps": "App-Entferner",
     "settings": "Einstellungen"
   },
   "dashboard": {
@@ -115,6 +116,12 @@
     "creating": "Erstelle Wiederherstellungspunkt...",
     "success": "Wiederherstellungspunkt erfolgreich erstellt.",
     "error": "Fehler beim Erstellen. Stellen Sie sicher, dass die Systemwiederherstellung aktiv ist."
+  },
+  "apps": {
+    "title": "Windows App-Entferner",
+    "subtitle": "Vorinstallierte Bloatware und unerwünschte Apps entfernen",
+    "scan": "Apps suchen",
+    "remove": "Ausgewählte löschen"
   },
   "common": {
     "loading": "Laden...",

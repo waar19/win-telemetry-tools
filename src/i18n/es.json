@@ -11,6 +11,7 @@
     "firewall": "Firewall",
     "network": "Monitor de Red",
     "updates": "Actualizaciones",
+    "apps": "Debloater de Apps",
     "settings": "Configuración"
   },
   "dashboard": {
@@ -115,6 +116,12 @@
     "creating": "Creando punto de restauración...",
     "success": "Punto de restauración creado con éxito.",
     "error": "Error al crear copia. Asegure que Restaurar Sistema esté activo."
+  },
+  "apps": {
+    "title": "Debloater de Apps Windows",
+    "subtitle": "Eliminar bloatware preinstalado y aplicaciones no deseadas",
+    "scan": "Escanear Apps",
+    "remove": "Eliminar Seleccionados"
   },
   "common": {
     "loading": "Cargando...",

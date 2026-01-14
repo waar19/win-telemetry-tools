@@ -18,6 +18,7 @@ from .cleanup_panel import CleanupPanel
 from .firewall_panel import FirewallPanel
 from .network_panel import NetworkPanel
 from .update_panel import UpdatePanel
+from .app_cleaner_panel import AppCleanerPanel
 from .settings_panel import SettingsPanel
 from .workers import DashboardDataWorker, RestoreWorker
 from ..modules.telemetry_blocker import TelemetryBlocker
@@ -83,6 +84,7 @@ class MainWindow(QMainWindow):
         self.btn_firewall = self._create_nav_btn(tr("nav.firewall"), "firewall")
         self.btn_network = self._create_nav_btn(tr("nav.network"), "network")
         self.btn_updates = self._create_nav_btn(tr("nav.updates"), "updates")
+        self.btn_apps = self._create_nav_btn(tr("nav.apps"), "apps")
         self.btn_settings = self._create_nav_btn(tr("nav.settings"), "settings")
         
         sidebar_layout.addWidget(self.btn_dashboard)
@@ -92,6 +94,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(self.btn_firewall)
         sidebar_layout.addWidget(self.btn_network)
         sidebar_layout.addWidget(self.btn_updates)
+        sidebar_layout.addWidget(self.btn_apps)
         
         sidebar_layout.addStretch()
         
@@ -116,6 +119,7 @@ class MainWindow(QMainWindow):
         self.firewall_panel = FirewallPanel()
         self.network_panel = NetworkPanel()
         self.update_panel = UpdatePanel()
+        self.app_cleaner_panel = AppCleanerPanel()
         self.settings_panel = SettingsPanel()
         
         # Connect dashboard signals
@@ -133,6 +137,7 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.firewall_panel)
         self.stack.addWidget(self.network_panel)
         self.stack.addWidget(self.update_panel)
+        self.stack.addWidget(self.app_cleaner_panel)
         self.stack.addWidget(self.settings_panel)
         
         main_layout.addWidget(self.stack)
@@ -160,7 +165,8 @@ class MainWindow(QMainWindow):
             "firewall": (self.btn_firewall, 4),
             "network": (self.btn_network, 5),
             "updates": (self.btn_updates, 6),
-            "settings": (self.btn_settings, 7)
+            "apps": (self.btn_apps, 7),
+            "settings": (self.btn_settings, 8)
         }
         
         if page_id in mapping:
@@ -189,6 +195,10 @@ class MainWindow(QMainWindow):
                 self.network_panel.start_monitoring()
             elif index == 6:
                 self.update_panel.refresh_data()
+            elif index == 7:
+                self.app_cleaner_panel.start_scan() # Auto-scan on entry
+            elif index == 8:
+                pass # Settings doesn't need refresh on entry
             
             # Stop network scan when leaving the page
             if index != 5:
@@ -284,6 +294,7 @@ class MainWindow(QMainWindow):
         self.btn_firewall.setText(tr("nav.firewall"))
         self.btn_network.setText(tr("nav.network"))
         self.btn_updates.setText(tr("nav.updates"))
+        self.btn_apps.setText(tr("nav.apps"))
         self.btn_settings.setText(tr("nav.settings"))
         
         # Update panels
@@ -294,3 +305,4 @@ class MainWindow(QMainWindow):
         self.firewall_panel.refresh_translations()
         self.network_panel.refresh_translations()
         self.update_panel.refresh_translations()
+        self.app_cleaner_panel.refresh_translations()

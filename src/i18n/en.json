@@ -11,6 +11,7 @@
     "firewall": "Firewall",
     "network": "Network Monitor",
     "updates": "Windows Updates",
+    "apps": "App Debloater",
     "settings": "Settings"
   },
   "dashboard": {
@@ -115,6 +116,12 @@
     "creating": "Creating restore point...",
     "success": "Restore point created successfully.",
     "error": "Failed to create restore point. Ensure System Restore is enabled."
+  },
+  "apps": {
+    "title": "Windows App Debloater",
+    "subtitle": "Remove pre-installed bloatware and unwanted applications",
+    "scan": "Scan Apps",
+    "remove": "Remove Selected"
   },
   "common": {
     "loading": "Loading...",
