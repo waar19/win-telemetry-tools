@@ -10,9 +10,15 @@
 
 - **Telemetry Blocking** - Disable Windows telemetry services, scheduled tasks, and registry settings
 - **App Permissions** - Manage camera, microphone, and location access for apps
+- **App Cleaner** - Remove bloatware safely with protection for critical system apps
 - **Tracking Cleanup** - Clear activity history, prefetch, timeline data, and reset Advertising ID
+- **Browser Privacy** - Clean cache, cookies, and history for Chrome, Edge, and Firefox
 - **Firewall Rules** - Block Microsoft telemetry endpoints at the network level
+- **Network Monitor** - Real-time analysis of active connections and traffic
+- **Update Control** - Manage Windows Update policies (Disable, Notify Only)
+- **Privacy Profiles** - Export/Import settings and configure Auto-Start
 - **Privacy Score** - Visual dashboard showing your overall privacy status
+- **Multi-language** - Support for English, Spanish, and German
 
 ## Screenshots
 
