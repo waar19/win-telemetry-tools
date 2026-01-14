@@ -29,6 +29,8 @@ exe = EXE(
     a.datas,
     [],
     name='PrivacyDashboard',
+    version='file_version_info.txt',
+
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
