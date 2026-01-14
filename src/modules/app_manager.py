@@ -40,7 +40,9 @@ class AppManager:
         "Microsoft.Windows.StartMenuExperienceHost",
         "windows.immersivecontrolpanel",
         "Microsoft.Windows.Cortana",
-        "Microsoft.Windows.SecHealthUI" # Defender UI
+        "Microsoft.Windows.SecHealthUI", # Defender UI
+        "Microsoft.XboxGameCallableUI", # System component, fails to remove (0x80073CFA)
+        "Microsoft.XboxIdentityProvider" # Often needed for auth
     ]
 
     def __init__(self):
