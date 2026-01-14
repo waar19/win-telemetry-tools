@@ -5,7 +5,8 @@ Application entry point and navigation.
 
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, 
-    QPushButton, QStackedWidget, QLabel, QFrame
+    QPushButton, QStackedWidget, QLabel, QFrame,
+    QProgressDialog, QMessageBox
 )
 from PyQt6.QtCore import Qt, pyqtSlot
 
@@ -18,11 +19,12 @@ from .firewall_panel import FirewallPanel
 from .network_panel import NetworkPanel
 from .update_panel import UpdatePanel
 from .settings_panel import SettingsPanel
-from .workers import DashboardDataWorker
+from .workers import DashboardDataWorker, RestoreWorker
 from ..modules.telemetry_blocker import TelemetryBlocker
 from ..modules.permissions_manager import PermissionsManager
 from ..modules.firewall_manager import FirewallManager
 from ..modules.tracking_cleaner import TrackingCleaner
+from ..modules.system_restore import SystemRestoreManager
 from ..i18n import tr
 
 
@@ -37,6 +39,7 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(MAIN_STYLESHEET)
         
         self._dashboard_worker = None
+        self._restore_worker = None
         self._init_managers()
         self._setup_ui()
     
@@ -45,6 +48,7 @@ class MainWindow(QMainWindow):
         self.permissions = PermissionsManager()
         self.firewall = FirewallManager()
         self.cleaner = TrackingCleaner()
+        self.restore_manager = SystemRestoreManager()
     
     def _setup_ui(self):
         central_widget = QWidget()
@@ -208,14 +212,58 @@ class MainWindow(QMainWindow):
         if action_id == "cleanup_all":
             self.navigate_to("cleanup")
             self.cleanup_panel.start_cleanup()
-        elif action_id == "protect_all":
-            # Execute protection sequence
-            self.telemetry.block_all_telemetry()
-            self.permissions.disable_all_permissions()
-            self.firewall.block_all_telemetry()
+        
+        elif action_id == "create_restore_point":
+            self._create_restore_point_ui("Manual Backup")
             
-            # Refresh UI
-            self.update_dashboard_stats()
+        elif action_id == "protect_all":
+            # Ask for backup
+            reply = QMessageBox.question(
+                self, 
+                tr("restore.title"),
+                tr("restore.create") + "?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel
+            )
+            
+            if reply == QMessageBox.StandardButton.Yes:
+                self._create_restore_point_ui("Privacy Protection Backup", next_action="protect_all")
+            elif reply == QMessageBox.StandardButton.No:
+                self._execute_protect_all()
+
+    def _execute_protect_all(self):
+        """Execute protection sequence."""
+        self.telemetry.block_all_telemetry()
+        self.permissions.disable_all_permissions()
+        self.firewall.block_all_telemetry()
+        
+        # Refresh UI
+        self.update_dashboard_stats()
+        QMessageBox.information(self, tr("dashboard.title"), tr("dashboard.excellent"))
+
+    def _create_restore_point_ui(self, description, next_action=None):
+        """Show progress and run restore worker."""
+        self.progress_d = QProgressDialog(tr("restore.creating"), None, 0, 0, self)
+        self.progress_d.setWindowTitle(tr("restore.title"))
+        self.progress_d.setWindowModality(Qt.WindowModality.WindowModal)
+        self.progress_d.setMinimumDuration(0)
+        # Disable cancel button by implicit None (or explicit if needed)
+        self.progress_d.setCancelButton(None) 
+        self.progress_d.show()
+
+        self._restore_worker = RestoreWorker(self.restore_manager, description)
+        self._restore_worker.finished.connect(lambda s, m: self._on_restore_finished(s, m, next_action))
+        self._restore_worker.start()
+        
+    def _on_restore_finished(self, success, msg, next_action):
+        """Handle restore completion."""
+        self.progress_d.close()
+        if success:
+            QMessageBox.information(self, tr("restore.title"), tr("restore.success"))
+            if next_action == "protect_all":
+                self._execute_protect_all()
+        else:
+            QMessageBox.warning(self, tr("restore.title"), tr("restore.error"))
+
     
     @pyqtSlot(str)
     def _on_language_changed(self, lang_code: str):

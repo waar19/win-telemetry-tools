@@ -108,6 +108,14 @@
     "message": "This application requires Administrator privileges to function correctly.",
     "description": "Features like Firewall control, Windows Update management, and System Cleanup need admin rights.\n\nPlease restart the application as Administrator."
   },
+  "restore": {
+    "title": "System Backup",
+    "create": "Create Backup",
+    "desc_short": "Create Restore Point",
+    "creating": "Creating restore point...",
+    "success": "Restore point created successfully.",
+    "error": "Failed to create restore point. Ensure System Restore is enabled."
+  },
   "common": {
     "loading": "Loading...",
     "success": "Success",

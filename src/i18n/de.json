@@ -108,6 +108,14 @@
     "message": "Diese Anwendung erfordert Administratorrechte, um korrekt zu funktionieren.",
     "description": "Funktionen wie Firewall-Steuerung, Windows-Updates und Systembereinigung erfordern Admin-Rechte.\n\nBitte starten Sie die Anwendung als Administrator neu."
   },
+  "restore": {
+    "title": "Systemwiederherstellung",
+    "create": "Sicherung erstellen",
+    "desc_short": "Wiederherstellungspunkt erstellen",
+    "creating": "Erstelle Wiederherstellungspunkt...",
+    "success": "Wiederherstellungspunkt erfolgreich erstellt.",
+    "error": "Fehler beim Erstellen. Stellen Sie sicher, dass die Systemwiederherstellung aktiv ist."
+  },
   "common": {
     "loading": "Laden...",
     "success": "Erfolg",

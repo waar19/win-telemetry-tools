@@ -101,3 +101,24 @@ class DashboardDataWorker(QThread):
         f_counts = self.firewall.get_blocked_count()
         c_size = self.cleaner.get_total_cleanup_size()
         self.finished.emit(t_score, p_score, f_counts, c_size)
+
+
+class RestoreWorker(QThread):
+    """Worker for creating system restore points."""
+    
+    finished = pyqtSignal(bool, str)
+    
+    def __init__(self, manager, description, parent=None):
+        super().__init__(parent)
+        self.manager = manager
+        self.description = description
+    
+    def run(self):
+        try:
+            success = self.manager.create_restore_point(self.description)
+            if success:
+                self.finished.emit(True, "success") # Message will be localized in UI
+            else:
+                self.finished.emit(False, "error")
+        except Exception as e:
+            self.finished.emit(False, str(e))

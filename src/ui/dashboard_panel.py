@@ -234,8 +234,29 @@ class DashboardPanel(QWidget):
         cleanup_layout.addStretch()
         cleanup_layout.addWidget(self.cleanup_btn)
         
+        # Backup Card
+        backup_card = QFrame()
+        backup_card.setObjectName("card")
+        backup_layout = QVBoxLayout(backup_card)
+        
+        self.backup_title = QLabel(tr("restore.title"))
+        self.backup_title.setStyleSheet("font-weight: bold; font-size: 16px;")
+        self.backup_desc = QLabel(tr("restore.desc_short"))
+        self.backup_desc.setObjectName("muted")
+        self.backup_desc.setWordWrap(True)
+        
+        self.backup_btn = QPushButton(tr("restore.create"))
+        self.backup_btn.setObjectName("secondary")
+        self.backup_btn.clicked.connect(lambda: self.action_requested.emit("create_restore_point"))
+        
+        backup_layout.addWidget(self.backup_title)
+        backup_layout.addWidget(self.backup_desc)
+        backup_layout.addStretch()
+        backup_layout.addWidget(self.backup_btn)
+        
         actions_layout.addWidget(protect_card)
         actions_layout.addWidget(cleanup_card)
+        actions_layout.addWidget(backup_card)
         
         layout.addLayout(actions_layout)
     
@@ -322,3 +343,7 @@ class DashboardPanel(QWidget):
         self.stat_cards["permissions"].title_label.setText(tr("nav.permissions"))
         self.stat_cards["firewall"].title_label.setText(tr("nav.firewall"))
         self.stat_cards["cleanup"].title_label.setText(tr("nav.cleanup"))
+        
+        self.backup_title.setText(tr("restore.title"))
+        self.backup_desc.setText(tr("restore.desc_short"))
+        self.backup_btn.setText(tr("restore.create"))

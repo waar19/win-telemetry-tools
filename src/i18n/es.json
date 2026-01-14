@@ -108,6 +108,14 @@
     "message": "Esta aplicación requiere privilegios de Administrador para funcionar correctamente.",
     "description": "Funciones como control de Firewall, actualizaciones de Windows y limpieza del sistema necesitan permisos de administrador.\n\nPor favor, reinicie la aplicación como Administrador."
   },
+  "restore": {
+    "title": "Copia de Seguridad",
+    "create": "Crear Copia",
+    "desc_short": "Crear Punto de Restauración",
+    "creating": "Creando punto de restauración...",
+    "success": "Punto de restauración creado con éxito.",
+    "error": "Error al crear copia. Asegure que Restaurar Sistema esté activo."
+  },
   "common": {
     "loading": "Cargando...",
     "success": "Éxito",
