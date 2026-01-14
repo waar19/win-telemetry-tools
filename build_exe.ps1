@@ -18,9 +18,21 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "`nBuild Successful!" -ForegroundColor Green
     Write-Host "Executable is located at: $(Resolve-Path dist\PrivacyDashboard.exe)" -ForegroundColor Green
     
+    # Create ZIP package
+    $version = "v1.3.0"
+    $zipName = "PrivacyDashboard_$version.zip"
+    $source = "dist\PrivacyDashboard.exe"
+    $destination = "dist\$zipName"
+    
+    Write-Host "Creating release package: $zipName..." -ForegroundColor Cyan
+    Compress-Archive -Path $source -DestinationPath $destination -Force
+    
+    Write-Host "Release package created at: $(Resolve-Path $destination)" -ForegroundColor Green
+
     # Open explorer to the file
     ii dist
-} else {
+}
+else {
     Write-Error "Build Failed!"
     exit 1
 }
