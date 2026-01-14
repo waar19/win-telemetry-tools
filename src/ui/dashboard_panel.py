@@ -99,7 +99,20 @@ class DashboardPanel(QWidget):
         self._setup_ui()
     
     def _setup_ui(self):
-        layout = QVBoxLayout(self)
+        # Wrapper for scroll
+        wrapper_layout = QVBoxLayout(self)
+        wrapper_layout.setContentsMargins(0, 0, 0, 0)
+        
+        from PyQt6.QtWidgets import QScrollArea
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        wrapper_layout.addWidget(scroll)
+        
+        content_widget = QWidget()
+        scroll.setWidget(content_widget)
+        
+        layout = QVBoxLayout(content_widget)
         layout.setContentsMargins(32, 32, 32, 32)
         layout.setSpacing(24)
         
@@ -121,6 +134,8 @@ class DashboardPanel(QWidget):
             font-size: 64px;
             font-weight: bold;
             color: {COLORS['primary']};
+            padding: 10px;
+            min-height: 80px;
         """)
         self.score_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
@@ -233,7 +248,8 @@ class DashboardPanel(QWidget):
         title_label.setObjectName("muted")
         
         value_label = QLabel(value)
-        value_label.setStyleSheet(f"font-size: 28px; font-weight: bold; color: {COLORS['primary']};")
+        value_label.setStyleSheet(f"font-size: 28px; font-weight: bold; color: {COLORS['primary']}; padding: 4px;")
+        value_label.setMinimumHeight(45)
         
         sub_label = QLabel(subtitle)
         sub_label.setObjectName("muted")
@@ -267,6 +283,8 @@ class DashboardPanel(QWidget):
             font-size: 64px;
             font-weight: bold;
             color: {get_score_color(overall)};
+            padding: 10px;
+            min-height: 80px;
         """)
         
         # Update description
