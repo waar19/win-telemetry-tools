@@ -150,12 +150,27 @@ class AppCleanerPanel(QWidget):
             self.table.setItem(row, 2, QTableWidgetItem(pub_raw))
             
             # Type (Bloatware vs User)
-            type_str = "Recommended Removal" if app["is_bloatware"] else "System/User App"
-            type_item = QTableWidgetItem(type_str)
-            if app["is_bloatware"]:
-                 type_item.setForeground(Qt.GlobalColor.red)
+            if app.get("is_critical", False):
+                type_str = "CRITICAL SYSTEM APP"
+                type_item = QTableWidgetItem(type_str)
+                type_item.setForeground(Qt.GlobalColor.red)
+                type_item.setData(Qt.ItemDataRole.UserRole, "critical") # Mark as critical
+                
+                # Disable checkbox for critical apps by default
+                chk_item.setFlags(Qt.ItemFlag.NoItemFlags) # Make non-interactable or just disabled
+                chk_item.setFlags(Qt.ItemFlag.ItemIsEnabled) # Just enabled but not checkable? No, usually ItemIsUserCheckable is needed.
+                # Let's make it disabled completely
+                chk_item.setFlags(Qt.ItemFlag.NoItemFlags)
+                
+            elif app["is_bloatware"]:
+                type_str = "Recommended Removal"
+                type_item = QTableWidgetItem(type_str)
+                type_item.setForeground(Qt.GlobalColor.darkYellow) # Yellow for caution/bloat
             else:
-                 type_item.setForeground(Qt.GlobalColor.darkGreen)
+                type_str = "System/User App"
+                type_item = QTableWidgetItem(type_str)
+                type_item.setForeground(Qt.GlobalColor.darkGreen)
+            
             self.table.setItem(row, 3, type_item)
             
         self.table.blockSignals(False) # Re-enable signals

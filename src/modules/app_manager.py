@@ -33,6 +33,16 @@ class AppManager:
         "TikTok"
     ]
 
+    # Apps that should NOT be removed as they are critical or very common utilities
+    CRITICAL_KEYWORDS = [
+        "Microsoft.WindowsStore",
+        "Microsoft.Windows.ShellExperienceHost",
+        "Microsoft.Windows.StartMenuExperienceHost",
+        "windows.immersivecontrolpanel",
+        "Microsoft.Windows.Cortana",
+        "Microsoft.Windows.SecHealthUI" # Defender UI
+    ]
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
@@ -69,15 +79,17 @@ class AppManager:
                 name = item.get("Name", "")
                 full_name = item.get("PackageFullName", "")
                 
-                # Determine if potential bloatware
+                # Determine if potential bloatware or critical
                 is_bloat = any(k.lower() in name.lower() for k in self.BLOATWARE_KEYWORDS)
+                is_critical = any(k.lower() in name.lower() for k in self.CRITICAL_KEYWORDS)
                 
                 app_info = {
                     "name": name,
                     "id": full_name, # Needed for removal
                     "version": item.get("Version", "Unknown"),
                     "publisher": item.get("Publisher", "Unknown"),
-                    "is_bloatware": is_bloat
+                    "is_bloatware": is_bloat,
+                    "is_critical": is_critical
                 }
                 apps.append(app_info)
                 
