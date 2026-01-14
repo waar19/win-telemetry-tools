@@ -35,9 +35,9 @@ class NetworkPanel(QWidget):
         header_layout = QHBoxLayout()
         
         title_block = QVBoxLayout()
-        self.title = QLabel("Network Monitor")  # Todo: Add to i18n
+        self.title = QLabel(tr("network.title"))
         self.title.setObjectName("sectionTitle")
-        self.subtitle = QLabel("Live view of active connections")
+        self.subtitle = QLabel(tr("network.subtitle"))
         self.subtitle.setObjectName("subtitle")
         title_block.addWidget(self.title)
         title_block.addWidget(self.subtitle)
@@ -46,7 +46,7 @@ class NetworkPanel(QWidget):
         header_layout.addStretch()
         
         # Control Buttons
-        self.btn_toggle = QPushButton("Start Monitoring")
+        self.btn_toggle = QPushButton(tr("network.start"))
         self.btn_toggle.clicked.connect(self.toggle_monitoring)
         self.btn_toggle.setCheckable(True)
         
@@ -57,9 +57,7 @@ class NetworkPanel(QWidget):
         # Connections Table
         self.table = QTableWidget()
         self.table.setColumnCount(5)
-        self.table.setHorizontalHeaderLabels([
-            "Process", "Remote Address", "Hostname", "Status", "Type"
-        ])
+        self._update_table_headers()
         
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
@@ -74,19 +72,28 @@ class NetworkPanel(QWidget):
         layout.addWidget(self.table)
         
         # Status Bar
-        self.status_label = QLabel("Monitoring stopped")
+        self.status_label = QLabel(tr("network.stopped"))
         self.status_label.setObjectName("muted")
         layout.addWidget(self.status_label)
+    
+    def _update_table_headers(self):
+        self.table.setHorizontalHeaderLabels([
+            tr("network.process"), 
+            tr("network.remote_addr"), 
+            tr("network.hostname"), 
+            tr("network.status"), 
+            tr("network.type")
+        ])
     
     def toggle_monitoring(self, checked):
         state = self.btn_toggle.isChecked()
         if state:
-            self.btn_toggle.setText("Stop Monitoring")
-            self.status_label.setText("Monitoring active...")
+            self.btn_toggle.setText(tr("network.stop"))
+            self.status_label.setText(tr("network.active"))
             self.start_monitoring()
         else:
-            self.btn_toggle.setText("Start Monitoring")
-            self.status_label.setText("Monitoring stopped")
+            self.btn_toggle.setText(tr("network.start"))
+            self.status_label.setText(tr("network.stopped"))
             self.stop_monitoring()
     
     def start_monitoring(self):
@@ -106,7 +113,7 @@ class NetworkPanel(QWidget):
         connections = self.monitor.get_connections()
         
         self.table.setRowCount(len(connections))
-        self.status_label.setText(f"Active connections: {len(connections)}")
+        self.status_label.setText(f"{tr('network.active_connections')} {len(connections)}")
         
         for i, conn in enumerate(connections):
             # Process
@@ -134,5 +141,15 @@ class NetworkPanel(QWidget):
             self.table.setItem(i, 4, type_item)
     
     def refresh_translations(self):
-        # Todo: Update translations when added to json
-        pass
+        self.title.setText(tr("network.title"))
+        self.subtitle.setText(tr("network.subtitle"))
+        
+        if self.btn_toggle.isChecked():
+            self.btn_toggle.setText(tr("network.stop"))
+            if not self.is_monitoring: # Should ideally be synced logic
+                 pass
+        else:
+            self.btn_toggle.setText(tr("network.start"))
+            self.status_label.setText(tr("network.stopped"))
+
+        self._update_table_headers()

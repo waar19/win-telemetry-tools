@@ -9,6 +9,8 @@
     "permissions": "Permisos",
     "cleanup": "Limpieza",
     "firewall": "Firewall",
+    "network": "Monitor de Red",
+    "updates": "Actualizaciones",
     "settings": "Configuración"
   },
   "dashboard": {
@@ -73,6 +75,38 @@
     "language": "Idioma",
     "language_desc": "Selecciona tu idioma preferido",
     "restart_note": "Los cambios de idioma se aplican inmediatamente"
+  },
+  "network": {
+    "title": "Monitor de Red",
+    "subtitle": "Vista en vivo de conexiones activas",
+    "start": "Iniciar Monitoreo",
+    "stop": "Detener Monitoreo",
+    "active_connections": "Conexiones activas:",
+    "process": "Proceso",
+    "remote_addr": "Dirección Remota",
+    "hostname": "Hostname",
+    "status": "Estado",
+    "type": "Tipo",
+    "stopped": "Monitoreo detenido",
+    "active": "Monitoreo activo..."
+  },
+  "updates": {
+    "title": "Actualizaciones de Windows",
+    "subtitle": "Controle cómo y cuándo se actualiza su sistema",
+    "status": "Estado Actual:",
+    "policy": "Política de Actualización",
+    "default": "Predeterminado (Gestionado por Windows)",
+    "notify": "Notificar antes de descargar",
+    "disable": "Desactivar Actualizaciones Automáticas",
+    "apply": "Aplicar Configuración",
+    "desc_default": "Windows gestiona las actualizaciones automáticamente.",
+    "desc_notify": "Se le notificará cuando haya actualizaciones disponibles.",
+    "desc_disable": "Las actualizaciones automáticas están completamente desactivadas."
+  },
+  "admin": {
+    "title": "Se Requieren Permisos de Admin",
+    "message": "Esta aplicación requiere privilegios de Administrador para funcionar correctamente.",
+    "description": "Funciones como control de Firewall, actualizaciones de Windows y limpieza del sistema necesitan permisos de administrador.\n\nPor favor, reinicie la aplicación como Administrador."
   },
   "common": {
     "loading": "Cargando...",

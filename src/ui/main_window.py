@@ -76,8 +76,8 @@ class MainWindow(QMainWindow):
         self.btn_permissions = self._create_nav_btn(tr("nav.permissions"), "permissions")
         self.btn_cleanup = self._create_nav_btn(tr("nav.cleanup"), "cleanup")
         self.btn_firewall = self._create_nav_btn(tr("nav.firewall"), "firewall")
-        self.btn_network = self._create_nav_btn("Network Monitor", "network") # Todo: i18n
-        self.btn_updates = self._create_nav_btn("Windows Updates", "updates") # Todo: i18n
+        self.btn_network = self._create_nav_btn(tr("nav.network"), "network")
+        self.btn_updates = self._create_nav_btn(tr("nav.updates"), "updates")
         self.btn_settings = self._create_nav_btn(tr("nav.settings"), "settings")
         
         sidebar_layout.addWidget(self.btn_dashboard)
@@ -233,8 +233,9 @@ class MainWindow(QMainWindow):
         self.btn_permissions.setText(tr("nav.permissions"))
         self.btn_cleanup.setText(tr("nav.cleanup"))
         self.btn_firewall.setText(tr("nav.firewall"))
+        self.btn_network.setText(tr("nav.network"))
+        self.btn_updates.setText(tr("nav.updates"))
         self.btn_settings.setText(tr("nav.settings"))
-        # Todo: Update new buttons with i18n
         
         # Update panels
         self.dashboard_panel.refresh_translations()

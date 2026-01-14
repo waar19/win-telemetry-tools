@@ -9,6 +9,8 @@
     "permissions": "Berechtigungen",
     "cleanup": "Bereinigung",
     "firewall": "Firewall",
+    "network": "Netzwerkmonitor",
+    "updates": "Windows Updates",
     "settings": "Einstellungen"
   },
   "dashboard": {
@@ -72,10 +74,42 @@
     "subtitle": "Anwendungseinstellungen konfigurieren",
     "language": "Sprache",
     "language_desc": "Wählen Sie Ihre bevorzugte Sprache",
-    "restart_note": "Sprachänderungen werden sofort übernommen"
+    "restart_note": "Sprachänderungen werden sofort wirksam"
+  },
+  "network": {
+    "title": "Netzwerkmonitor",
+    "subtitle": "Live-Ansicht aktiver Verbindungen",
+    "start": "Überwachung Starten",
+    "stop": "Überwachung Stoppen",
+    "active_connections": "Aktive Verbindungen:",
+    "process": "Prozess",
+    "remote_addr": "Remote-Adresse",
+    "hostname": "Hostname",
+    "status": "Status",
+    "type": "Typ",
+    "stopped": "Überwachung gestoppt",
+    "active": "Überwachung läuft..."
+  },
+  "updates": {
+    "title": "Windows Updates",
+    "subtitle": "Steuern Sie, wie und wann Ihr System aktualisiert wird",
+    "status": "Aktueller Status:",
+    "policy": "Update-Richtlinie",
+    "default": "Standard (Von Windows verwaltet)",
+    "notify": "Benachrichtigen vor dem Download",
+    "disable": "Automatische Updates deaktivieren",
+    "apply": "Einstellungen anwenden",
+    "desc_default": "Windows verwaltet Updates automatisch.",
+    "desc_notify": "Sie werden benachrichtigt, wenn Updates verfügbar sind.",
+    "desc_disable": "Automatische Updates sind vollständig deaktiviert."
+  },
+  "admin": {
+    "title": "Admin-Rechte erforderlich",
+    "message": "Diese Anwendung erfordert Administratorrechte, um korrekt zu funktionieren.",
+    "description": "Funktionen wie Firewall-Steuerung, Windows-Updates und Systembereinigung erfordern Admin-Rechte.\n\nBitte starten Sie die Anwendung als Administrator neu."
   },
   "common": {
-    "loading": "Wird geladen...",
+    "loading": "Laden...",
     "success": "Erfolg",
     "warning": "Warnung",
     "error": "Fehler",

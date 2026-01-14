@@ -32,6 +32,19 @@ def main():
 
     app = QApplication(sys.argv)
     
+    # Check for admin rights
+    if not is_admin():
+        from PyQt6.QtWidgets import QMessageBox
+        from src.i18n import tr
+        
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Icon.Warning)
+        msg.setWindowTitle(tr("admin.title"))
+        msg.setText(tr("admin.message"))
+        msg.setInformativeText(tr("admin.description"))
+        msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+        msg.exec()
+    
     # Set application metadata
     app.setApplicationName("Windows Privacy Dashboard")
     app.setOrganizationName("WinPrivacy")

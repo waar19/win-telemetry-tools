@@ -9,6 +9,8 @@
     "permissions": "Permissions",
     "cleanup": "Cleanup",
     "firewall": "Firewall",
+    "network": "Network Monitor",
+    "updates": "Windows Updates",
     "settings": "Settings"
   },
   "dashboard": {
@@ -73,6 +75,38 @@
     "language": "Language",
     "language_desc": "Select your preferred language",
     "restart_note": "Language changes apply immediately"
+  },
+  "network": {
+    "title": "Network Monitor",
+    "subtitle": "Live view of active connections",
+    "start": "Start Monitoring",
+    "stop": "Stop Monitoring",
+    "active_connections": "Active connections:",
+    "process": "Process",
+    "remote_addr": "Remote Address",
+    "hostname": "Hostname",
+    "status": "Status",
+    "type": "Type",
+    "stopped": "Monitoring stopped",
+    "active": "Monitoring active..."
+  },
+  "updates": {
+    "title": "Windows Updates",
+    "subtitle": "Control how and when your system updates",
+    "status": "Current Status:",
+    "policy": "Update Policy",
+    "default": "Default (Windows Managed)",
+    "notify": "Notify before download",
+    "disable": "Disable Automatic Updates",
+    "apply": "Apply Settings",
+    "desc_default": "Windows manages updates automatically.",
+    "desc_notify": "You will be notified when updates are available.",
+    "desc_disable": "Automatic updates are completely disabled."
+  },
+  "admin": {
+    "title": "Admin Rights Required",
+    "message": "This application requires Administrator privileges to function correctly.",
+    "description": "Features like Firewall control, Windows Update management, and System Cleanup need admin rights.\n\nPlease restart the application as Administrator."
   },
   "common": {
     "loading": "Loading...",
