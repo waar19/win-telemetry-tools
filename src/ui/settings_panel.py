@@ -28,7 +28,19 @@ class SettingsPanel(QWidget):
         self._load_settings()
     
     def _setup_ui(self):
-        layout = QVBoxLayout(self)
+        wrapper_layout = QVBoxLayout(self)
+        wrapper_layout.setContentsMargins(0, 0, 0, 0)
+        
+        from PyQt6.QtWidgets import QScrollArea
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        wrapper_layout.addWidget(scroll)
+        
+        content = QWidget()
+        scroll.setWidget(content)
+        
+        layout = QVBoxLayout(content)
         layout.setContentsMargins(32, 32, 32, 32)
         layout.setSpacing(24)
         

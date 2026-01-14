@@ -32,7 +32,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(tr("app.title"))
-        self.resize(1200, 800)
+        self.resize(1080, 720) # Optimized for 1366x768 screens
+        self.setMinimumSize(960, 600)
         self.setStyleSheet(MAIN_STYLESHEET)
         
         self._dashboard_worker = None
