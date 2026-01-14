@@ -1,6 +1,6 @@
 """
 Dashboard Panel
-Main panel with privacy score and stats.
+Main panel with privacy score, stats, and score history.
 """
 
 from PyQt6.QtWidgets import (
@@ -8,9 +8,83 @@ from PyQt6.QtWidgets import (
     QFrame, QPushButton, QGridLayout
 )
 from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QPainter, QPen, QColor, QPainterPath
 
 from .styles import COLORS, get_score_color
 from ..i18n import tr
+from ..modules.score_history import ScoreHistory
+
+
+class ScoreHistoryWidget(QFrame):
+    """Mini chart showing score history."""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("card")
+        self.setMinimumHeight(100)
+        self.setMaximumHeight(120)
+        self._history = []
+        self._trend = "stable"
+    
+    def set_history(self, history: list, trend: str):
+        """Set history data for display."""
+        self._history = history
+        self._trend = trend
+        self.update()
+    
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        
+        if not self._history:
+            return
+        
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        
+        # Draw area
+        margin = 20
+        width = self.width() - (margin * 2)
+        height = self.height() - (margin * 2)
+        
+        if len(self._history) < 2:
+            return
+        
+        # Calculate points
+        scores = [e.score for e in self._history]
+        min_score = max(0, min(scores) - 10)
+        max_score = min(100, max(scores) + 10)
+        score_range = max_score - min_score if max_score != min_score else 1
+        
+        points = []
+        for i, score in enumerate(scores):
+            x = margin + (i / (len(scores) - 1)) * width
+            y = margin + height - ((score - min_score) / score_range) * height
+            points.append((x, y))
+        
+        # Draw line
+        pen = QPen(QColor(COLORS["primary"]))
+        pen.setWidth(2)
+        painter.setPen(pen)
+        
+        path = QPainterPath()
+        path.moveTo(points[0][0], points[0][1])
+        for x, y in points[1:]:
+            path.lineTo(x, y)
+        
+        painter.drawPath(path)
+        
+        # Draw dots
+        painter.setBrush(QColor(COLORS["primary"]))
+        for x, y in points:
+            painter.drawEllipse(int(x) - 4, int(y) - 4, 8, 8)
+        
+        # Draw trend indicator
+        trend_color = COLORS["success"] if self._trend == "up" else COLORS["danger"] if self._trend == "down" else COLORS["text_muted"]
+        trend_text = "↑" if self._trend == "up" else "↓" if self._trend == "down" else "→"
+        
+        painter.setPen(QColor(trend_color))
+        painter.setFont(self.font())
+        painter.drawText(self.width() - 30, 25, trend_text)
 
 
 class DashboardPanel(QWidget):
@@ -21,6 +95,7 @@ class DashboardPanel(QWidget):
     
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.score_history = ScoreHistory()
         self._setup_ui()
     
     def _setup_ui(self):
@@ -69,6 +144,17 @@ class DashboardPanel(QWidget):
         score_layout.addLayout(desc_container, stretch=1)
         
         layout.addWidget(score_frame)
+        
+        # Score History Chart
+        history_header = QHBoxLayout()
+        self.history_title = QLabel("Score History (7 days)")
+        self.history_title.setStyleSheet("font-weight: bold;")
+        history_header.addWidget(self.history_title)
+        history_header.addStretch()
+        layout.addLayout(history_header)
+        
+        self.history_chart = ScoreHistoryWidget()
+        layout.addWidget(self.history_chart)
         
         # Stats Grid
         stats_grid = QGridLayout()
@@ -137,7 +223,6 @@ class DashboardPanel(QWidget):
         actions_layout.addWidget(cleanup_card)
         
         layout.addLayout(actions_layout)
-        layout.addStretch()
     
     def _create_stat_card(self, title: str, value: str, subtitle: str) -> QFrame:
         card = QFrame()
@@ -168,6 +253,15 @@ class DashboardPanel(QWidget):
         # Calculate overall score
         overall = int((t_score + p_score) / 2)
         
+        # Save to history
+        blocked, total = f_counts
+        self.score_history.add_entry(overall, t_score, p_score, blocked, total)
+        
+        # Update history chart
+        history = self.score_history.get_history(7)
+        trend = self.score_history.get_score_trend()
+        self.history_chart.set_history(history, trend)
+        
         self.score_label.setText(str(overall))
         self.score_label.setStyleSheet(f"""
             font-size: 64px;
@@ -188,8 +282,6 @@ class DashboardPanel(QWidget):
         # Update stats
         self.stat_cards["telemetry"].value_label.setText(f"{t_score}%")
         self.stat_cards["permissions"].value_label.setText(f"{p_score}%")
-        
-        blocked, total = f_counts
         self.stat_cards["firewall"].value_label.setText(f"{blocked}/{total}")
         
         size_mb = c_size / (1024 * 1024)

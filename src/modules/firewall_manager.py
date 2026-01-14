@@ -172,6 +172,94 @@ class FirewallManager:
             category="Advertising",
             ip_addresses=["13.107.21.200"]
         ),
+        # Office Telemetry
+        TelemetryEndpoint(
+            domain="oca.telemetry.microsoft.com.nsatc.net",
+            description="Office telemetry",
+            category="Office",
+            ip_addresses=["65.55.252.63"]
+        ),
+        TelemetryEndpoint(
+            domain="oneclient.sfx.ms",
+            description="OneDrive telemetry",
+            category="Office",
+            ip_addresses=["13.107.6.171"]
+        ),
+        TelemetryEndpoint(
+            domain="outlookmobile-office365-tas.msedge.net",
+            description="Outlook mobile telemetry",
+            category="Office",
+            ip_addresses=["13.107.6.171"]
+        ),
+        TelemetryEndpoint(
+            domain="pipe.aria.microsoft.com",
+            description="Office analytics pipeline",
+            category="Office",
+            ip_addresses=["13.107.6.158"]
+        ),
+        # Edge Browser
+        TelemetryEndpoint(
+            domain="edge.microsoft.com",
+            description="Edge browser telemetry",
+            category="Edge",
+            ip_addresses=["13.107.21.200"]
+        ),
+        TelemetryEndpoint(
+            domain="msedge.api.cdp.microsoft.com",
+            description="Edge CDP API",
+            category="Edge",
+            ip_addresses=["13.107.21.200"]
+        ),
+        TelemetryEndpoint(
+            domain="edge.activity.windows.com",
+            description="Edge activity sync",
+            category="Edge",
+            ip_addresses=["13.107.6.158"]
+        ),
+        # Cortana and Search
+        TelemetryEndpoint(
+            domain="cortana.ai",
+            description="Cortana AI services",
+            category="Cortana",
+            ip_addresses=["13.107.21.200"]
+        ),
+        TelemetryEndpoint(
+            domain="www.bing.com",
+            description="Bing search (Cortana)",
+            category="Cortana",
+            ip_addresses=["204.79.197.200", "13.107.21.200"]
+        ),
+        TelemetryEndpoint(
+            domain="business.bing.com",
+            description="Bing business telemetry",
+            category="Cortana",
+            ip_addresses=["13.107.21.200"]
+        ),
+        # Advertising
+        TelemetryEndpoint(
+            domain="ad.doubleclick.net",
+            description="Google ads (MS partner)",
+            category="Advertising",
+            ip_addresses=["172.217.0.0"]
+        ),
+        TelemetryEndpoint(
+            domain="adnxs.com",
+            description="Microsoft advertising network",
+            category="Advertising",
+            ip_addresses=["68.67.178.247"]
+        ),
+        TelemetryEndpoint(
+            domain="ads.msn.com",
+            description="MSN Advertising",
+            category="Advertising",
+            ip_addresses=["13.107.21.200"]
+        ),
+        TelemetryEndpoint(
+            domain="c.msn.com",
+            description="MSN content telemetry",
+            category="Advertising",
+            ip_addresses=["13.107.21.200"]
+        ),
     ]
     
     def __init__(self):
