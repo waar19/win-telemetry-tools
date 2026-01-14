@@ -42,7 +42,18 @@ class AppManager:
         "Microsoft.Windows.Cortana",
         "Microsoft.Windows.SecHealthUI", # Defender UI
         "Microsoft.XboxGameCallableUI", # System component, fails to remove (0x80073CFA)
-        "Microsoft.XboxIdentityProvider" # Often needed for auth
+        "Microsoft.XboxIdentityProvider", # Often needed for auth
+        "Microsoft.MicrosoftEdge", # Browser components
+        "Microsoft.Windows.ContentDeliveryManager", # Windows Spotlight / Lock Screen Assets
+        "Microsoft.BioEnrollment", # Windows Hello
+        "Microsoft.Windows.ParentalControls", 
+        "Microsoft.LockApp", # Lock Screen
+        "Microsoft.AsyncTextService", # Messaging/People
+        "Microsoft.Services.Store.Engagement",
+        "Microsoft.Windows.AAD.BrokerPlugin", # Identity / Auth
+        "Microsoft.ECApp", # Eye Control
+        "Microsoft.Win32WebViewHost", # Desktop App Web Viewer
+        "Microsoft.Windows.Search" # Core Search
     ]
 
     def __init__(self):
