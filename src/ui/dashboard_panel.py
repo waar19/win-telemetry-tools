@@ -1,157 +1,20 @@
 """
 Dashboard Panel
-Main overview panel showing privacy score and quick actions.
+Main panel with privacy score and stats.
 """
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-    QPushButton, QFrame, QGridLayout, QProgressBar
+    QFrame, QPushButton, QGridLayout
 )
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont
 
 from .styles import COLORS, get_score_color
-
-
-class ScoreWidget(QWidget):
-    """Large circular privacy score display."""
-    
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._score = 0
-        self._setup_ui()
-    
-    def _setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        # Score container
-        self.score_label = QLabel("0")
-        self.score_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        font = QFont("Segoe UI", 72, QFont.Weight.Bold)
-        self.score_label.setFont(font)
-        self.score_label.setStyleSheet(f"color: {get_score_color(0)};")
-        
-        # Score subtitle
-        self.subtitle_label = QLabel("Privacy Score")
-        self.subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.subtitle_label.setObjectName("subtitle")
-        
-        # Status text
-        self.status_label = QLabel("Your privacy needs attention")
-        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.status_label.setObjectName("muted")
-        
-        layout.addWidget(self.score_label)
-        layout.addWidget(self.subtitle_label)
-        layout.addSpacing(8)
-        layout.addWidget(self.status_label)
-    
-    def set_score(self, score: int):
-        self._score = score
-        self.score_label.setText(str(score))
-        self.score_label.setStyleSheet(f"color: {get_score_color(score)};")
-        
-        if score >= 80:
-            status = "Excellent! Your privacy is well protected"
-        elif score >= 60:
-            status = "Good, but there's room for improvement"
-        elif score >= 40:
-            status = "Your privacy needs some attention"
-        else:
-            status = "Warning: Your privacy is at risk"
-        
-        self.status_label.setText(status)
-
-
-class StatCard(QFrame):
-    """Small card showing a single statistic."""
-    
-    clicked = pyqtSignal()
-    
-    def __init__(self, title: str, value: str, icon: str = "", parent=None):
-        super().__init__(parent)
-        self.setObjectName("card")
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._setup_ui(title, value, icon)
-    
-    def _setup_ui(self, title: str, value: str, icon: str):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(8)
-        
-        # Header with icon
-        header = QHBoxLayout()
-        
-        if icon:
-            icon_label = QLabel(icon)
-            icon_label.setStyleSheet("font-size: 24px;")
-            header.addWidget(icon_label)
-        
-        title_label = QLabel(title)
-        title_label.setObjectName("subtitle")
-        header.addWidget(title_label)
-        header.addStretch()
-        
-        # Value
-        self.value_label = QLabel(value)
-        self.value_label.setStyleSheet("font-size: 28px; font-weight: bold;")
-        
-        layout.addLayout(header)
-        layout.addWidget(self.value_label)
-    
-    def set_value(self, value: str):
-        self.value_label.setText(value)
-    
-    def mousePressEvent(self, event):
-        self.clicked.emit()
-        super().mousePressEvent(event)
-
-
-class QuickActionCard(QFrame):
-    """Card with a quick action button."""
-    
-    action_clicked = pyqtSignal(str)
-    
-    def __init__(self, title: str, description: str, action_text: str, 
-                 action_id: str, icon: str = "", parent=None):
-        super().__init__(parent)
-        self.action_id = action_id
-        self.setObjectName("card")
-        self._setup_ui(title, description, action_text, icon)
-    
-    def _setup_ui(self, title: str, description: str, action_text: str, icon: str):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(12)
-        
-        # Header
-        header = QHBoxLayout()
-        
-        if icon:
-            icon_label = QLabel(icon)
-            icon_label.setStyleSheet("font-size: 28px;")
-            header.addWidget(icon_label)
-        
-        title_label = QLabel(title)
-        title_label.setStyleSheet("font-size: 16px; font-weight: bold;")
-        header.addWidget(title_label)
-        header.addStretch()
-        
-        # Description
-        desc_label = QLabel(description)
-        desc_label.setObjectName("muted")
-        desc_label.setWordWrap(True)
-        
-        # Action button
-        self.action_btn = QPushButton(action_text)
-        self.action_btn.clicked.connect(lambda: self.action_clicked.emit(self.action_id))
-        
-        layout.addLayout(header)
-        layout.addWidget(desc_label)
-        layout.addWidget(self.action_btn)
+from ..i18n import tr
 
 
 class DashboardPanel(QWidget):
-    """Main dashboard panel with privacy overview."""
+    """Main dashboard with privacy overview."""
     
     navigate_to = pyqtSignal(str)
     action_requested = pyqtSignal(str)
@@ -162,66 +25,113 @@ class DashboardPanel(QWidget):
     
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setSpacing(24)
         layout.setContentsMargins(32, 32, 32, 32)
+        layout.setSpacing(24)
         
-        # Title
-        title = QLabel("Privacy Dashboard")
-        title.setObjectName("sectionTitle")
-        layout.addWidget(title)
+        # Header
+        self.title = QLabel(tr("dashboard.title"))
+        self.title.setObjectName("sectionTitle")
+        layout.addWidget(self.title)
         
-        # Score widget
-        self.score_widget = ScoreWidget()
-        layout.addWidget(self.score_widget)
+        # Privacy Score Section
+        score_frame = QFrame()
+        score_frame.setObjectName("card")
+        score_layout = QHBoxLayout(score_frame)
+        score_layout.setContentsMargins(24, 24, 24, 24)
         
-        # Stats grid
-        stats_layout = QGridLayout()
-        stats_layout.setSpacing(16)
+        # Score Circle
+        score_container = QVBoxLayout()
+        self.score_label = QLabel("--")
+        self.score_label.setStyleSheet(f"""
+            font-size: 64px;
+            font-weight: bold;
+            color: {COLORS['primary']};
+        """)
+        self.score_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        self.telemetry_stat = StatCard("Telemetry", "0%", "📡")
-        self.telemetry_stat.clicked.connect(lambda: self.navigate_to.emit("telemetry"))
+        self.score_title = QLabel(tr("dashboard.privacy_score"))
+        self.score_title.setStyleSheet("font-size: 16px; font-weight: bold;")
+        self.score_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        self.permissions_stat = StatCard("Permissions", "0%", "🔐")
-        self.permissions_stat.clicked.connect(lambda: self.navigate_to.emit("permissions"))
+        score_container.addWidget(self.score_label)
+        score_container.addWidget(self.score_title)
         
-        self.firewall_stat = StatCard("Firewall", "0/0", "🛡️")
-        self.firewall_stat.clicked.connect(lambda: self.navigate_to.emit("firewall"))
+        # Score Description
+        desc_container = QVBoxLayout()
+        self.score_desc = QLabel(tr("dashboard.excellent"))
+        self.score_desc.setWordWrap(True)
+        self.score_desc.setStyleSheet("font-size: 15px;")
+        desc_container.addWidget(self.score_desc)
+        desc_container.addStretch()
         
-        self.cleanup_stat = StatCard("Cleanup", "0 MB", "🧹")
-        self.cleanup_stat.clicked.connect(lambda: self.navigate_to.emit("cleanup"))
+        score_layout.addLayout(score_container)
+        score_layout.addSpacing(40)
+        score_layout.addLayout(desc_container, stretch=1)
         
-        stats_layout.addWidget(self.telemetry_stat, 0, 0)
-        stats_layout.addWidget(self.permissions_stat, 0, 1)
-        stats_layout.addWidget(self.firewall_stat, 1, 0)
-        stats_layout.addWidget(self.cleanup_stat, 1, 1)
+        layout.addWidget(score_frame)
         
-        layout.addLayout(stats_layout)
+        # Stats Grid
+        stats_grid = QGridLayout()
+        stats_grid.setSpacing(16)
         
-        # Quick actions
-        actions_title = QLabel("Quick Actions")
-        actions_title.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 16px;")
-        layout.addWidget(actions_title)
+        self.stat_cards = {}
+        self.stat_cards["telemetry"] = self._create_stat_card(tr("nav.telemetry"), "0%", "blocked")
+        self.stat_cards["permissions"] = self._create_stat_card(tr("nav.permissions"), "0%", "restricted")
+        self.stat_cards["firewall"] = self._create_stat_card(tr("nav.firewall"), "0/0", "blocked")
+        self.stat_cards["cleanup"] = self._create_stat_card(tr("nav.cleanup"), "0 MB", "to clean")
+        
+        stats_grid.addWidget(self.stat_cards["telemetry"], 0, 0)
+        stats_grid.addWidget(self.stat_cards["permissions"], 0, 1)
+        stats_grid.addWidget(self.stat_cards["firewall"], 1, 0)
+        stats_grid.addWidget(self.stat_cards["cleanup"], 1, 1)
+        
+        layout.addLayout(stats_grid)
+        
+        # Quick Actions
+        self.actions_title = QLabel(tr("dashboard.quick_actions"))
+        self.actions_title.setStyleSheet("font-size: 18px; font-weight: bold; margin-top: 16px;")
+        layout.addWidget(self.actions_title)
         
         actions_layout = QHBoxLayout()
-        actions_layout.setSpacing(16)
         
-        protect_card = QuickActionCard(
-            "Maximum Protection",
-            "Block all telemetry, disable permissions, and add firewall rules",
-            "Enable All",
-            "protect_all",
-            "🛡️"
-        )
-        protect_card.action_clicked.connect(self.action_requested.emit)
+        # Max Protection Card
+        protect_card = QFrame()
+        protect_card.setObjectName("card")
+        protect_layout = QVBoxLayout(protect_card)
         
-        cleanup_card = QuickActionCard(
-            "Quick Cleanup",
-            "Clear tracking data, caches, and reset advertising ID",
-            "Clean Now",
-            "cleanup_all",
-            "🧹"
-        )
-        cleanup_card.action_clicked.connect(self.action_requested.emit)
+        self.protect_title = QLabel(tr("dashboard.max_protection"))
+        self.protect_title.setStyleSheet("font-weight: bold; font-size: 16px;")
+        self.protect_desc = QLabel(tr("dashboard.max_protection_desc"))
+        self.protect_desc.setObjectName("muted")
+        self.protect_desc.setWordWrap(True)
+        
+        self.protect_btn = QPushButton(tr("dashboard.enable_all"))
+        self.protect_btn.clicked.connect(lambda: self.action_requested.emit("protect_all"))
+        
+        protect_layout.addWidget(self.protect_title)
+        protect_layout.addWidget(self.protect_desc)
+        protect_layout.addStretch()
+        protect_layout.addWidget(self.protect_btn)
+        
+        # Cleanup Card
+        cleanup_card = QFrame()
+        cleanup_card.setObjectName("card")
+        cleanup_layout = QVBoxLayout(cleanup_card)
+        
+        self.cleanup_title = QLabel(tr("dashboard.quick_cleanup"))
+        self.cleanup_title.setStyleSheet("font-weight: bold; font-size: 16px;")
+        self.cleanup_desc = QLabel(tr("dashboard.quick_cleanup_desc"))
+        self.cleanup_desc.setObjectName("muted")
+        self.cleanup_desc.setWordWrap(True)
+        
+        self.cleanup_btn = QPushButton(tr("dashboard.clean_now"))
+        self.cleanup_btn.setObjectName("secondary")
+        self.cleanup_btn.clicked.connect(lambda: self.action_requested.emit("cleanup_all"))
+        
+        cleanup_layout.addWidget(self.cleanup_title)
+        cleanup_layout.addWidget(self.cleanup_desc)
+        cleanup_layout.addStretch()
+        cleanup_layout.addWidget(self.cleanup_btn)
         
         actions_layout.addWidget(protect_card)
         actions_layout.addWidget(cleanup_card)
@@ -229,26 +139,76 @@ class DashboardPanel(QWidget):
         layout.addLayout(actions_layout)
         layout.addStretch()
     
-    def update_scores(self, telemetry: int, permissions: int, 
-                      firewall: tuple, cleanup_size: int):
-        """Update all stat cards with current values."""
+    def _create_stat_card(self, title: str, value: str, subtitle: str) -> QFrame:
+        card = QFrame()
+        card.setObjectName("card")
+        layout = QVBoxLayout(card)
+        
+        title_label = QLabel(title)
+        title_label.setObjectName("muted")
+        
+        value_label = QLabel(value)
+        value_label.setStyleSheet(f"font-size: 28px; font-weight: bold; color: {COLORS['primary']};")
+        
+        sub_label = QLabel(subtitle)
+        sub_label.setObjectName("muted")
+        
+        layout.addWidget(title_label)
+        layout.addWidget(value_label)
+        layout.addWidget(sub_label)
+        
+        # Store references for updating
+        card.value_label = value_label
+        card.title_label = title_label
+        
+        return card
+    
+    def update_scores(self, t_score: int, p_score: int, f_counts: tuple, c_size: int):
+        """Update dashboard with new data."""
         # Calculate overall score
-        firewall_score = (firewall[0] / firewall[1] * 100) if firewall[1] > 0 else 0
-        overall = int((telemetry + permissions + firewall_score) / 3)
+        overall = int((t_score + p_score) / 2)
         
-        self.score_widget.set_score(overall)
-        self.telemetry_stat.set_value(f"{telemetry}%")
-        self.permissions_stat.set_value(f"{permissions}%")
-        self.firewall_stat.set_value(f"{firewall[0]}/{firewall[1]}")
+        self.score_label.setText(str(overall))
+        self.score_label.setStyleSheet(f"""
+            font-size: 64px;
+            font-weight: bold;
+            color: {get_score_color(overall)};
+        """)
         
-        # Format cleanup size
-        if cleanup_size > 1024 * 1024 * 1024:
-            size_str = f"{cleanup_size / (1024*1024*1024):.1f} GB"
-        elif cleanup_size > 1024 * 1024:
-            size_str = f"{cleanup_size / (1024*1024):.1f} MB"
-        elif cleanup_size > 1024:
-            size_str = f"{cleanup_size / 1024:.1f} KB"
+        # Update description
+        if overall >= 80:
+            self.score_desc.setText(tr("dashboard.excellent"))
+        elif overall >= 60:
+            self.score_desc.setText(tr("dashboard.good"))
+        elif overall >= 40:
+            self.score_desc.setText(tr("dashboard.needs_attention"))
         else:
-            size_str = f"{cleanup_size} B"
+            self.score_desc.setText(tr("dashboard.at_risk"))
         
-        self.cleanup_stat.set_value(size_str)
+        # Update stats
+        self.stat_cards["telemetry"].value_label.setText(f"{t_score}%")
+        self.stat_cards["permissions"].value_label.setText(f"{p_score}%")
+        
+        blocked, total = f_counts
+        self.stat_cards["firewall"].value_label.setText(f"{blocked}/{total}")
+        
+        size_mb = c_size / (1024 * 1024)
+        self.stat_cards["cleanup"].value_label.setText(f"{size_mb:.1f} MB")
+    
+    def refresh_translations(self):
+        """Update all text with current language."""
+        self.title.setText(tr("dashboard.title"))
+        self.score_title.setText(tr("dashboard.privacy_score"))
+        self.actions_title.setText(tr("dashboard.quick_actions"))
+        self.protect_title.setText(tr("dashboard.max_protection"))
+        self.protect_desc.setText(tr("dashboard.max_protection_desc"))
+        self.protect_btn.setText(tr("dashboard.enable_all"))
+        self.cleanup_title.setText(tr("dashboard.quick_cleanup"))
+        self.cleanup_desc.setText(tr("dashboard.quick_cleanup_desc"))
+        self.cleanup_btn.setText(tr("dashboard.clean_now"))
+        
+        # Update stat card titles
+        self.stat_cards["telemetry"].title_label.setText(tr("nav.telemetry"))
+        self.stat_cards["permissions"].title_label.setText(tr("nav.permissions"))
+        self.stat_cards["firewall"].title_label.setText(tr("nav.firewall"))
+        self.stat_cards["cleanup"].title_label.setText(tr("nav.cleanup"))

@@ -13,6 +13,7 @@ from PyQt6.QtCore import Qt, pyqtSlot
 from .styles import COLORS
 from .workers import FirewallDataWorker
 from ..modules.firewall_manager import FirewallManager, FirewallRule
+from ..i18n import tr
 
 
 class FirewallPanel(QWidget):
@@ -35,21 +36,21 @@ class FirewallPanel(QWidget):
         header_layout = QHBoxLayout()
         
         title_block = QVBoxLayout()
-        title = QLabel("Firewall Rules")
-        title.setObjectName("sectionTitle")
-        subtitle = QLabel("Block Microsoft telemetry servers at the network level")
-        subtitle.setObjectName("subtitle")
-        title_block.addWidget(title)
-        title_block.addWidget(subtitle)
+        self.title = QLabel(tr("firewall.title"))
+        self.title.setObjectName("sectionTitle")
+        self.subtitle = QLabel(tr("firewall.subtitle"))
+        self.subtitle.setObjectName("subtitle")
+        title_block.addWidget(self.title)
+        title_block.addWidget(self.subtitle)
         
         header_layout.addLayout(title_block)
         header_layout.addStretch()
         
         # Actions
-        self.block_btn = QPushButton("Block All")
+        self.block_btn = QPushButton(tr("firewall.block_all"))
         self.block_btn.clicked.connect(self.block_all)
         
-        self.unblock_btn = QPushButton("Unblock All")
+        self.unblock_btn = QPushButton(tr("firewall.unblock_all"))
         self.unblock_btn.setObjectName("secondary")
         self.unblock_btn.clicked.connect(self.unblock_all)
         
@@ -64,15 +65,15 @@ class FirewallPanel(QWidget):
         self.warn_frame.setStyleSheet(f"border: 1px solid {COLORS['warning']};")
         warn_layout = QHBoxLayout(self.warn_frame)
         warn_icon = QLabel("⚠️")
-        warn_text = QLabel("Administrator privileges required to manage firewall rules")
+        self.warn_text = QLabel(tr("firewall.admin_warning"))
         warn_layout.addWidget(warn_icon)
-        warn_layout.addWidget(warn_text)
+        warn_layout.addWidget(self.warn_text)
         warn_layout.addStretch()
         self.warn_frame.setVisible(False)
         layout.addWidget(self.warn_frame)
         
         # Loading indicator
-        self.loading_label = QLabel("Loading...")
+        self.loading_label = QLabel(tr("common.loading"))
         self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.loading_label.setObjectName("muted")
         self.loading_label.setVisible(False)
@@ -81,7 +82,11 @@ class FirewallPanel(QWidget):
         # Rules Table
         self.table = QTableWidget()
         self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels(["Endpoint", "Description", "Status"])
+        self.table.setHorizontalHeaderLabels([
+            tr("firewall.endpoint"), 
+            tr("firewall.description"), 
+            tr("firewall.status")
+        ])
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
@@ -131,7 +136,8 @@ class FirewallPanel(QWidget):
             self.table.setItem(i, 1, desc_item)
             
             # Status
-            status_widget = QLabel("Blocked" if rule.is_active else "Allowed")
+            status_text = tr("firewall.blocked") if rule.is_active else tr("firewall.allowed")
+            status_widget = QLabel(status_text)
             status_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
             status_widget.setStyleSheet(
                 f"color: {COLORS['success'] if rule.is_active else COLORS['danger']}; font-weight: bold;"
@@ -142,16 +148,32 @@ class FirewallPanel(QWidget):
     def block_all(self):
         success, msg = self.manager.block_all_telemetry()
         if success:
-            QMessageBox.information(self, "Success", msg)
+            QMessageBox.information(self, tr("common.success"), msg)
         else:
-            QMessageBox.warning(self, "Warning", msg)
+            QMessageBox.warning(self, tr("common.warning"), msg)
         self.refresh_data()
     
     @pyqtSlot()
     def unblock_all(self):
         success, msg = self.manager.unblock_all_telemetry()
         if success:
-            QMessageBox.information(self, "Success", msg)
+            QMessageBox.information(self, tr("common.success"), msg)
         else:
-            QMessageBox.warning(self, "Warning", msg)
+            QMessageBox.warning(self, tr("common.warning"), msg)
         self.refresh_data()
+    
+    def refresh_translations(self):
+        """Update all text with current language."""
+        self.title.setText(tr("firewall.title"))
+        self.subtitle.setText(tr("firewall.subtitle"))
+        self.block_btn.setText(tr("firewall.block_all"))
+        self.unblock_btn.setText(tr("firewall.unblock_all"))
+        self.warn_text.setText(tr("firewall.admin_warning"))
+        self.loading_label.setText(tr("common.loading"))
+        
+        # Update table headers
+        self.table.setHorizontalHeaderLabels([
+            tr("firewall.endpoint"), 
+            tr("firewall.description"), 
+            tr("firewall.status")
+        ])

@@ -1,0 +1,86 @@
+{
+  "app": {
+    "title": "Privacy Dashboard",
+    "version": "v1.0.0"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "telemetry": "Telemetry",
+    "permissions": "Permissions",
+    "cleanup": "Cleanup",
+    "firewall": "Firewall",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Privacy Dashboard",
+    "privacy_score": "Privacy Score",
+    "excellent": "Excellent! Your privacy is well protected",
+    "good": "Good, but there's room for improvement",
+    "needs_attention": "Your privacy needs some attention",
+    "at_risk": "Warning: Your privacy is at risk",
+    "quick_actions": "Quick Actions",
+    "max_protection": "Maximum Protection",
+    "max_protection_desc": "Block all telemetry, disable permissions, and add firewall rules",
+    "quick_cleanup": "Quick Cleanup",
+    "quick_cleanup_desc": "Clear tracking data, caches, and reset advertising ID",
+    "enable_all": "Enable All",
+    "clean_now": "Clean Now"
+  },
+  "telemetry": {
+    "title": "Telemetry & Tracking",
+    "subtitle": "Manage Windows data collection and scheduled tasks",
+    "block_all": "Block All",
+    "restore": "Restore Defaults",
+    "registry": "Registry",
+    "service": "Service",
+    "task": "Task"
+  },
+  "permissions": {
+    "title": "App Permissions",
+    "subtitle": "Manage access to Camera, Microphone, and more",
+    "type_label": "Permission Type:",
+    "global_setting": "Global Setting",
+    "global_desc": "Allow apps to access this resource",
+    "apps_with_access": "Apps with Access",
+    "no_apps": "No apps found with this permission",
+    "allowed": "Allowed",
+    "denied": "Denied"
+  },
+  "cleanup": {
+    "title": "Tracking Cleanup",
+    "subtitle": "Remove activity history, cache, and tracking identifiers",
+    "clean_all": "Clean All",
+    "cleaning": "Cleaning:",
+    "complete": "Cleanup Complete",
+    "complete_msg": "Successfully cleaned from system.",
+    "freed": "Freed:"
+  },
+  "firewall": {
+    "title": "Firewall Rules",
+    "subtitle": "Block Microsoft telemetry servers at the network level",
+    "block_all": "Block All",
+    "unblock_all": "Unblock All",
+    "admin_warning": "Administrator privileges required to manage firewall rules",
+    "endpoint": "Endpoint",
+    "description": "Description",
+    "status": "Status",
+    "blocked": "Blocked",
+    "allowed": "Allowed"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configure application preferences",
+    "language": "Language",
+    "language_desc": "Select your preferred language",
+    "restart_note": "Language changes apply immediately"
+  },
+  "common": {
+    "loading": "Loading...",
+    "success": "Success",
+    "warning": "Warning",
+    "error": "Error",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "apply": "Apply"
+  }
+}

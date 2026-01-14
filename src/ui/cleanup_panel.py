@@ -13,6 +13,7 @@ from PyQt6.QtCore import Qt, pyqtSlot, QThread, pyqtSignal
 from .styles import COLORS
 from .workers import CleanupDataWorker
 from ..modules.tracking_cleaner import TrackingCleaner, CleanupItem
+from ..i18n import tr
 
 
 class CleanWorker(QThread):
@@ -48,18 +49,18 @@ class CleanupPanel(QWidget):
         header_layout = QHBoxLayout()
         
         title_block = QVBoxLayout()
-        title = QLabel("Tracking Cleanup")
-        title.setObjectName("sectionTitle")
-        subtitle = QLabel("Remove activity history, cache, and tracking identifiers")
-        subtitle.setObjectName("subtitle")
-        title_block.addWidget(title)
-        title_block.addWidget(subtitle)
+        self.title = QLabel(tr("cleanup.title"))
+        self.title.setObjectName("sectionTitle")
+        self.subtitle = QLabel(tr("cleanup.subtitle"))
+        self.subtitle.setObjectName("subtitle")
+        title_block.addWidget(self.title)
+        title_block.addWidget(self.subtitle)
         
         header_layout.addLayout(title_block)
         header_layout.addStretch()
         
         # Action
-        self.clean_btn = QPushButton("Clean All")
+        self.clean_btn = QPushButton(tr("cleanup.clean_all"))
         self.clean_btn.clicked.connect(self.start_cleanup)
         
         header_layout.addWidget(self.clean_btn)
@@ -77,7 +78,7 @@ class CleanupPanel(QWidget):
         layout.addWidget(self.progress_label)
         
         # Loading indicator
-        self.loading_label = QLabel("Loading...")
+        self.loading_label = QLabel(tr("common.loading"))
         self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.loading_label.setObjectName("muted")
         self.loading_label.setVisible(False)
@@ -166,7 +167,7 @@ class CleanupPanel(QWidget):
     def update_progress(self, current, total, item_name):
         percentage = int((current / total) * 100)
         self.progress_bar.setValue(percentage)
-        self.progress_label.setText(f"Cleaning: {item_name}")
+        self.progress_label.setText(f"{tr('cleanup.cleaning')} {item_name}")
     
     @pyqtSlot(bool, str, int)
     def cleanup_finished(self, success, msg, bytes_cleaned):
@@ -176,9 +177,16 @@ class CleanupPanel(QWidget):
         
         if success:
             cleaned_str = self.cleaner._format_size(bytes_cleaned)
-            QMessageBox.information(self, "Cleanup Complete", 
-                                  f"Successfully cleaned from system.\nFreed: {cleaned_str}")
+            QMessageBox.information(self, tr("cleanup.complete"), 
+                                  f"{tr('cleanup.complete_msg')}\n{tr('cleanup.freed')} {cleaned_str}")
         else:
-            QMessageBox.warning(self, "Cleanup Warning", msg)
+            QMessageBox.warning(self, tr("common.warning"), msg)
             
         self.refresh_data()
+    
+    def refresh_translations(self):
+        """Update all text with current language."""
+        self.title.setText(tr("cleanup.title"))
+        self.subtitle.setText(tr("cleanup.subtitle"))
+        self.clean_btn.setText(tr("cleanup.clean_all"))
+        self.loading_label.setText(tr("common.loading"))

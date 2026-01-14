@@ -13,6 +13,7 @@ from PyQt6.QtCore import Qt, pyqtSlot
 from .styles import COLORS
 from .workers import PermissionsDataWorker
 from ..modules.permissions_manager import PermissionsManager, PermissionType
+from ..i18n import tr
 
 
 class AppPermissionWidget(QFrame):
@@ -28,7 +29,8 @@ class AppPermissionWidget(QFrame):
         name_label = QLabel(app_name)
         name_label.setStyleSheet("font-weight: bold;")
         
-        self.status_label = QLabel("Allowed" if is_allowed else "Denied")
+        status_text = tr("permissions.allowed") if is_allowed else tr("permissions.denied")
+        self.status_label = QLabel(status_text)
         self.status_label.setStyleSheet(f"color: {COLORS['danger'] if is_allowed else COLORS['success']};")
         
         layout.addWidget(name_label)
@@ -56,11 +58,11 @@ class PermissionsPanel(QWidget):
         header_layout = QHBoxLayout()
         
         title_block = QVBoxLayout()
-        title = QLabel("App Permissions")
-        title.setObjectName("sectionTitle")
-        self.subtitle = QLabel("Manage access to Camera, Microphone, and more")
+        self.title = QLabel(tr("permissions.title"))
+        self.title.setObjectName("sectionTitle")
+        self.subtitle = QLabel(tr("permissions.subtitle"))
         self.subtitle.setObjectName("subtitle")
-        title_block.addWidget(title)
+        title_block.addWidget(self.title)
         title_block.addWidget(self.subtitle)
         
         header_layout.addLayout(title_block)
@@ -73,7 +75,8 @@ class PermissionsPanel(QWidget):
             self.type_combo.addItem(name, p_type)
         
         self.type_combo.currentIndexChanged.connect(self.on_type_changed)
-        header_layout.addWidget(QLabel("Permission Type:"))
+        self.type_label = QLabel(tr("permissions.type_label"))
+        header_layout.addWidget(self.type_label)
         header_layout.addWidget(self.type_combo)
         
         layout.addLayout(header_layout)
@@ -84,9 +87,9 @@ class PermissionsPanel(QWidget):
         global_layout = QHBoxLayout(global_card)
         
         global_info = QVBoxLayout()
-        self.global_label = QLabel("Global Setting")
+        self.global_label = QLabel(tr("permissions.global_setting"))
         self.global_label.setStyleSheet("font-weight: bold; font-size: 16px;")
-        self.global_desc = QLabel("Allow apps to access this resource")
+        self.global_desc = QLabel(tr("permissions.global_desc"))
         self.global_desc.setObjectName("muted")
         global_info.addWidget(self.global_label)
         global_info.addWidget(self.global_desc)
@@ -102,16 +105,16 @@ class PermissionsPanel(QWidget):
         layout.addWidget(global_card)
         
         # Loading indicator
-        self.loading_label = QLabel("Loading...")
+        self.loading_label = QLabel(tr("common.loading"))
         self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.loading_label.setObjectName("muted")
         self.loading_label.setVisible(False)
         layout.addWidget(self.loading_label)
         
         # Apps List
-        list_label = QLabel("Apps with Access")
-        list_label.setStyleSheet("font-weight: bold; margin-top: 16px;")
-        layout.addWidget(list_label)
+        self.list_label = QLabel(tr("permissions.apps_with_access"))
+        self.list_label.setStyleSheet("font-weight: bold; margin-top: 16px;")
+        layout.addWidget(self.list_label)
         
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -131,7 +134,7 @@ class PermissionsPanel(QWidget):
     def on_global_toggle(self, checked):
         success, msg = self.manager.set_permission_global_state(self.current_type, checked)
         if not success:
-            QMessageBox.warning(self, "Error", str(msg))
+            QMessageBox.warning(self, tr("common.error"), str(msg))
             # Revert toggle if failed
             self.global_toggle.blockSignals(True)
             self.global_toggle.setChecked(not checked)
@@ -178,7 +181,7 @@ class PermissionsPanel(QWidget):
                 item.widget().deleteLater()
         
         if not apps:
-            no_apps = QLabel("No apps found with this permission")
+            no_apps = QLabel(tr("permissions.no_apps"))
             no_apps.setAlignment(Qt.AlignmentFlag.AlignCenter)
             no_apps.setObjectName("muted")
             self.content_layout.insertWidget(0, no_apps)
@@ -186,3 +189,13 @@ class PermissionsPanel(QWidget):
             for app in apps:
                 widget = AppPermissionWidget(app.app_name, app.is_allowed)
                 self.content_layout.insertWidget(self.content_layout.count() - 1, widget)
+    
+    def refresh_translations(self):
+        """Update all text with current language."""
+        self.title.setText(tr("permissions.title"))
+        self.subtitle.setText(tr("permissions.subtitle"))
+        self.type_label.setText(tr("permissions.type_label"))
+        self.global_label.setText(tr("permissions.global_setting"))
+        self.global_desc.setText(tr("permissions.global_desc"))
+        self.list_label.setText(tr("permissions.apps_with_access"))
+        self.loading_label.setText(tr("common.loading"))

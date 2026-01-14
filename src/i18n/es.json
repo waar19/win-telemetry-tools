@@ -1,0 +1,86 @@
+{
+  "app": {
+    "title": "Panel de Privacidad",
+    "version": "v1.0.0"
+  },
+  "nav": {
+    "dashboard": "Inicio",
+    "telemetry": "Telemetría",
+    "permissions": "Permisos",
+    "cleanup": "Limpieza",
+    "firewall": "Firewall",
+    "settings": "Configuración"
+  },
+  "dashboard": {
+    "title": "Panel de Privacidad",
+    "privacy_score": "Puntuación de Privacidad",
+    "excellent": "¡Excelente! Tu privacidad está bien protegida",
+    "good": "Bien, pero hay margen de mejora",
+    "needs_attention": "Tu privacidad necesita atención",
+    "at_risk": "Advertencia: Tu privacidad está en riesgo",
+    "quick_actions": "Acciones Rápidas",
+    "max_protection": "Protección Máxima",
+    "max_protection_desc": "Bloquear telemetría, deshabilitar permisos y agregar reglas de firewall",
+    "quick_cleanup": "Limpieza Rápida",
+    "quick_cleanup_desc": "Limpiar datos de rastreo, caché y restablecer ID de publicidad",
+    "enable_all": "Activar Todo",
+    "clean_now": "Limpiar Ahora"
+  },
+  "telemetry": {
+    "title": "Telemetría y Rastreo",
+    "subtitle": "Gestionar la recopilación de datos de Windows y tareas programadas",
+    "block_all": "Bloquear Todo",
+    "restore": "Restaurar Predeterminados",
+    "registry": "Registro",
+    "service": "Servicio",
+    "task": "Tarea"
+  },
+  "permissions": {
+    "title": "Permisos de Aplicaciones",
+    "subtitle": "Gestionar acceso a Cámara, Micrófono y más",
+    "type_label": "Tipo de Permiso:",
+    "global_setting": "Configuración Global",
+    "global_desc": "Permitir que las aplicaciones accedan a este recurso",
+    "apps_with_access": "Aplicaciones con Acceso",
+    "no_apps": "No se encontraron aplicaciones con este permiso",
+    "allowed": "Permitido",
+    "denied": "Denegado"
+  },
+  "cleanup": {
+    "title": "Limpieza de Rastreo",
+    "subtitle": "Eliminar historial de actividad, caché e identificadores de rastreo",
+    "clean_all": "Limpiar Todo",
+    "cleaning": "Limpiando:",
+    "complete": "Limpieza Completada",
+    "complete_msg": "Sistema limpiado exitosamente.",
+    "freed": "Liberado:"
+  },
+  "firewall": {
+    "title": "Reglas de Firewall",
+    "subtitle": "Bloquear servidores de telemetría de Microsoft a nivel de red",
+    "block_all": "Bloquear Todo",
+    "unblock_all": "Desbloquear Todo",
+    "admin_warning": "Se requieren privilegios de administrador para gestionar las reglas del firewall",
+    "endpoint": "Endpoint",
+    "description": "Descripción",
+    "status": "Estado",
+    "blocked": "Bloqueado",
+    "allowed": "Permitido"
+  },
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "Configurar preferencias de la aplicación",
+    "language": "Idioma",
+    "language_desc": "Selecciona tu idioma preferido",
+    "restart_note": "Los cambios de idioma se aplican inmediatamente"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "success": "Éxito",
+    "warning": "Advertencia",
+    "error": "Error",
+    "ok": "Aceptar",
+    "cancel": "Cancelar",
+    "apply": "Aplicar"
+  }
+}

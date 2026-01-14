@@ -16,11 +16,13 @@ from .telemetry_panel import TelemetryPanel
 from .permissions_panel import PermissionsPanel
 from .cleanup_panel import CleanupPanel
 from .firewall_panel import FirewallPanel
+from .settings_panel import SettingsPanel
 from .workers import DashboardDataWorker
 from ..modules.telemetry_blocker import TelemetryBlocker
 from ..modules.permissions_manager import PermissionsManager
 from ..modules.firewall_manager import FirewallManager
 from ..modules.tracking_cleaner import TrackingCleaner
+from ..i18n import tr
 
 
 class MainWindow(QMainWindow):
@@ -28,7 +30,7 @@ class MainWindow(QMainWindow):
     
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Windows Privacy Dashboard")
+        self.setWindowTitle(tr("app.title"))
         self.resize(1200, 800)
         self.setStyleSheet(MAIN_STYLESHEET)
         
@@ -51,28 +53,29 @@ class MainWindow(QMainWindow):
         main_layout.setSpacing(0)
         
         # Sidebar
-        sidebar = QFrame()
-        sidebar.setFixedWidth(260)
-        sidebar.setStyleSheet(f"background-color: {COLORS['bg_card']}; border-right: 1px solid {COLORS['border']};")
+        self.sidebar = QFrame()
+        self.sidebar.setFixedWidth(260)
+        self.sidebar.setStyleSheet(f"background-color: {COLORS['bg_card']}; border-right: 1px solid {COLORS['border']};")
         
-        sidebar_layout = QVBoxLayout(sidebar)
+        sidebar_layout = QVBoxLayout(self.sidebar)
         sidebar_layout.setContentsMargins(16, 24, 16, 24)
         sidebar_layout.setSpacing(8)
         
         # App Title in Sidebar
-        app_title = QLabel("Privacy Dashboard")
-        app_title.setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 24px;")
-        app_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        sidebar_layout.addWidget(app_title)
+        self.app_title = QLabel(tr("app.title"))
+        self.app_title.setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 24px;")
+        self.app_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        sidebar_layout.addWidget(self.app_title)
         
         # Navigation Buttons
         self.nav_btns = []
         
-        self.btn_dashboard = self._create_nav_btn("Dashboard", "dashboard")
-        self.btn_telemetry = self._create_nav_btn("Telemetry", "telemetry")
-        self.btn_permissions = self._create_nav_btn("Permissions", "permissions")
-        self.btn_cleanup = self._create_nav_btn("Cleanup", "cleanup")
-        self.btn_firewall = self._create_nav_btn("Firewall", "firewall")
+        self.btn_dashboard = self._create_nav_btn(tr("nav.dashboard"), "dashboard")
+        self.btn_telemetry = self._create_nav_btn(tr("nav.telemetry"), "telemetry")
+        self.btn_permissions = self._create_nav_btn(tr("nav.permissions"), "permissions")
+        self.btn_cleanup = self._create_nav_btn(tr("nav.cleanup"), "cleanup")
+        self.btn_firewall = self._create_nav_btn(tr("nav.firewall"), "firewall")
+        self.btn_settings = self._create_nav_btn(tr("nav.settings"), "settings")
         
         sidebar_layout.addWidget(self.btn_dashboard)
         sidebar_layout.addWidget(self.btn_telemetry)
@@ -82,13 +85,15 @@ class MainWindow(QMainWindow):
         
         sidebar_layout.addStretch()
         
-        # Version info
-        version = QLabel("v1.0.0")
-        version.setObjectName("muted")
-        version.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        sidebar_layout.addWidget(version)
+        sidebar_layout.addWidget(self.btn_settings)
         
-        main_layout.addWidget(sidebar)
+        # Version info
+        self.version_label = QLabel(tr("app.version"))
+        self.version_label.setObjectName("muted")
+        self.version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        sidebar_layout.addWidget(self.version_label)
+        
+        main_layout.addWidget(self.sidebar)
         
         # Content Area
         self.stack = QStackedWidget()
@@ -99,10 +104,14 @@ class MainWindow(QMainWindow):
         self.permissions_panel = PermissionsPanel()
         self.cleanup_panel = CleanupPanel()
         self.firewall_panel = FirewallPanel()
+        self.settings_panel = SettingsPanel()
         
         # Connect dashboard signals
         self.dashboard_panel.navigate_to.connect(self.navigate_to)
         self.dashboard_panel.action_requested.connect(self.handle_quick_action)
+        
+        # Connect settings language change
+        self.settings_panel.language_changed.connect(self._on_language_changed)
         
         # Add to stack
         self.stack.addWidget(self.dashboard_panel)
@@ -110,6 +119,7 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.permissions_panel)
         self.stack.addWidget(self.cleanup_panel)
         self.stack.addWidget(self.firewall_panel)
+        self.stack.addWidget(self.settings_panel)
         
         main_layout.addWidget(self.stack)
         
@@ -121,6 +131,7 @@ class MainWindow(QMainWindow):
         btn = QPushButton(text)
         btn.setObjectName("sidebar")
         btn.setCheckable(True)
+        btn.setProperty("page_id", page_id)
         btn.clicked.connect(lambda: self.navigate_to(page_id))
         self.nav_btns.append(btn)
         return btn
@@ -132,7 +143,8 @@ class MainWindow(QMainWindow):
             "telemetry": (self.btn_telemetry, 1),
             "permissions": (self.btn_permissions, 2),
             "cleanup": (self.btn_cleanup, 3),
-            "firewall": (self.btn_firewall, 4)
+            "firewall": (self.btn_firewall, 4),
+            "settings": (self.btn_settings, 5)
         }
         
         if page_id in mapping:
@@ -184,3 +196,29 @@ class MainWindow(QMainWindow):
             
             # Refresh UI
             self.update_dashboard_stats()
+    
+    @pyqtSlot(str)
+    def _on_language_changed(self, lang_code: str):
+        """Handle language change from settings."""
+        self._update_all_translations()
+    
+    def _update_all_translations(self):
+        """Update all UI text with current language."""
+        # Update window title
+        self.setWindowTitle(tr("app.title"))
+        
+        # Update sidebar
+        self.app_title.setText(tr("app.title"))
+        self.btn_dashboard.setText(tr("nav.dashboard"))
+        self.btn_telemetry.setText(tr("nav.telemetry"))
+        self.btn_permissions.setText(tr("nav.permissions"))
+        self.btn_cleanup.setText(tr("nav.cleanup"))
+        self.btn_firewall.setText(tr("nav.firewall"))
+        self.btn_settings.setText(tr("nav.settings"))
+        
+        # Update panels
+        self.dashboard_panel.refresh_translations()
+        self.telemetry_panel.refresh_translations()
+        self.permissions_panel.refresh_translations()
+        self.cleanup_panel.refresh_translations()
+        self.firewall_panel.refresh_translations()

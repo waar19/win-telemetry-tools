@@ -13,6 +13,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
 from .styles import COLORS
 from .workers import TelemetryDataWorker
 from ..modules.telemetry_blocker import TelemetryBlocker, TelemetryItem
+from ..i18n import tr
 
 
 class TelemetryItemWidget(QFrame):
@@ -71,21 +72,21 @@ class TelemetryPanel(QWidget):
         header_layout = QHBoxLayout()
         
         title_block = QVBoxLayout()
-        title = QLabel("Telemetry & Tracking")
-        title.setObjectName("sectionTitle")
-        subtitle = QLabel("Manage Windows data collection and scheduled tasks")
-        subtitle.setObjectName("subtitle")
-        title_block.addWidget(title)
-        title_block.addWidget(subtitle)
+        self.title = QLabel(tr("telemetry.title"))
+        self.title.setObjectName("sectionTitle")
+        self.subtitle = QLabel(tr("telemetry.subtitle"))
+        self.subtitle.setObjectName("subtitle")
+        title_block.addWidget(self.title)
+        title_block.addWidget(self.subtitle)
         
         header_layout.addLayout(title_block)
         header_layout.addStretch()
         
         # Actions
-        self.block_all_btn = QPushButton("Block All")
+        self.block_all_btn = QPushButton(tr("telemetry.block_all"))
         self.block_all_btn.clicked.connect(self.block_all)
         
-        self.restore_btn = QPushButton("Restore Defaults")
+        self.restore_btn = QPushButton(tr("telemetry.restore"))
         self.restore_btn.setObjectName("secondary")
         self.restore_btn.clicked.connect(self.restore_defaults)
         
@@ -95,7 +96,7 @@ class TelemetryPanel(QWidget):
         layout.addLayout(header_layout)
         
         # Loading indicator
-        self.loading_label = QLabel("Loading...")
+        self.loading_label = QLabel(tr("common.loading"))
         self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.loading_label.setObjectName("muted")
         self.loading_label.setVisible(False)
@@ -162,16 +163,24 @@ class TelemetryPanel(QWidget):
     def block_all(self):
         success, msg = self.blocker.block_all_telemetry()
         if success:
-            QMessageBox.information(self, "Success", msg)
+            QMessageBox.information(self, tr("common.success"), msg)
         else:
-            QMessageBox.warning(self, "Warning", f"Some items failed:\n{msg}")
+            QMessageBox.warning(self, tr("common.warning"), f"Some items failed:\n{msg}")
         self.refresh_data()
     
     @pyqtSlot()
     def restore_defaults(self):
         success, msg = self.blocker.unblock_all_telemetry()
         if success:
-            QMessageBox.information(self, "Success", msg)
+            QMessageBox.information(self, tr("common.success"), msg)
         else:
-            QMessageBox.warning(self, "Warning", f"Some items failed:\n{msg}")
+            QMessageBox.warning(self, tr("common.warning"), f"Some items failed:\n{msg}")
         self.refresh_data()
+    
+    def refresh_translations(self):
+        """Update all text with current language."""
+        self.title.setText(tr("telemetry.title"))
+        self.subtitle.setText(tr("telemetry.subtitle"))
+        self.block_all_btn.setText(tr("telemetry.block_all"))
+        self.restore_btn.setText(tr("telemetry.restore"))
+        self.loading_label.setText(tr("common.loading"))

@@ -1,0 +1,86 @@
+{
+  "app": {
+    "title": "Datenschutz-Dashboard",
+    "version": "v1.0.0"
+  },
+  "nav": {
+    "dashboard": "Übersicht",
+    "telemetry": "Telemetrie",
+    "permissions": "Berechtigungen",
+    "cleanup": "Bereinigung",
+    "firewall": "Firewall",
+    "settings": "Einstellungen"
+  },
+  "dashboard": {
+    "title": "Datenschutz-Dashboard",
+    "privacy_score": "Datenschutz-Bewertung",
+    "excellent": "Ausgezeichnet! Ihre Privatsphäre ist gut geschützt",
+    "good": "Gut, aber es gibt Verbesserungspotenzial",
+    "needs_attention": "Ihre Privatsphäre benötigt Aufmerksamkeit",
+    "at_risk": "Warnung: Ihre Privatsphäre ist gefährdet",
+    "quick_actions": "Schnellaktionen",
+    "max_protection": "Maximaler Schutz",
+    "max_protection_desc": "Telemetrie blockieren, Berechtigungen deaktivieren und Firewall-Regeln hinzufügen",
+    "quick_cleanup": "Schnelle Bereinigung",
+    "quick_cleanup_desc": "Tracking-Daten, Cache löschen und Werbe-ID zurücksetzen",
+    "enable_all": "Alle aktivieren",
+    "clean_now": "Jetzt bereinigen"
+  },
+  "telemetry": {
+    "title": "Telemetrie & Tracking",
+    "subtitle": "Windows-Datenerfassung und geplante Aufgaben verwalten",
+    "block_all": "Alle blockieren",
+    "restore": "Standard wiederherstellen",
+    "registry": "Registrierung",
+    "service": "Dienst",
+    "task": "Aufgabe"
+  },
+  "permissions": {
+    "title": "App-Berechtigungen",
+    "subtitle": "Zugriff auf Kamera, Mikrofon und mehr verwalten",
+    "type_label": "Berechtigungstyp:",
+    "global_setting": "Globale Einstellung",
+    "global_desc": "Apps den Zugriff auf diese Ressource erlauben",
+    "apps_with_access": "Apps mit Zugriff",
+    "no_apps": "Keine Apps mit dieser Berechtigung gefunden",
+    "allowed": "Erlaubt",
+    "denied": "Verweigert"
+  },
+  "cleanup": {
+    "title": "Tracking-Bereinigung",
+    "subtitle": "Aktivitätsverlauf, Cache und Tracking-Identifikatoren entfernen",
+    "clean_all": "Alles bereinigen",
+    "cleaning": "Bereinigung:",
+    "complete": "Bereinigung abgeschlossen",
+    "complete_msg": "System erfolgreich bereinigt.",
+    "freed": "Freigegeben:"
+  },
+  "firewall": {
+    "title": "Firewall-Regeln",
+    "subtitle": "Microsoft-Telemetrieserver auf Netzwerkebene blockieren",
+    "block_all": "Alle blockieren",
+    "unblock_all": "Alle freigeben",
+    "admin_warning": "Administratorrechte erforderlich zur Verwaltung der Firewall-Regeln",
+    "endpoint": "Endpunkt",
+    "description": "Beschreibung",
+    "status": "Status",
+    "blocked": "Blockiert",
+    "allowed": "Erlaubt"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Anwendungseinstellungen konfigurieren",
+    "language": "Sprache",
+    "language_desc": "Wählen Sie Ihre bevorzugte Sprache",
+    "restart_note": "Sprachänderungen werden sofort übernommen"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "success": "Erfolg",
+    "warning": "Warnung",
+    "error": "Fehler",
+    "ok": "OK",
+    "cancel": "Abbrechen",
+    "apply": "Anwenden"
+  }
+}
