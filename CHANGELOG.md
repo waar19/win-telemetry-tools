@@ -16,6 +16,9 @@ All notable changes to this project will be documented in this file.
 
 - **UI Responsiveness**: Added scrollable panels to support lower resolutions (e.g., 1366x768).
 - **Layout Issues**: Fixed text clipping in dashboard score and stats for High DPI screens.
+- **Telemetry Blocking**: Fixed "Access Denied" errors when blocking already-restricted registry keys.
+- **App Cleaner**: Fixed removal errors for system-protected apps (Xbox Game UI, Identity Provider) by marking them as critical.
+- **Auto-Start**: Verified and fixed registry path handling for application startup.
 
 ## [1.2.0] - 2026-01-14
 
