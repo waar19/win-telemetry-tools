@@ -28,35 +28,35 @@ class TelemetryBlocker:
             "name": "AllowTelemetry",
             "blocked_value": 0,
             "unblocked_value": 3,
-            "description": "Windows Telemetry Level"
+            "description": "Block Windows Telemetry"
         },
         {
             "path": r"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection",
             "name": "AllowTelemetry",
             "blocked_value": 0,
             "unblocked_value": 3,
-            "description": "Data Collection Policy"
+            "description": "Block Data Collection"
         },
         {
             "path": r"SOFTWARE\Policies\Microsoft\Windows\DataCollection",
             "name": "DoNotShowFeedbackNotifications",
             "blocked_value": 1,
             "unblocked_value": 0,
-            "description": "Feedback Notifications"
+            "description": "Disable Feedback Notifications"
         },
         {
             "path": r"SOFTWARE\Policies\Microsoft\Windows\CloudContent",
             "name": "DisableTailoredExperiencesWithDiagnosticData",
             "blocked_value": 1,
             "unblocked_value": 0,
-            "description": "Tailored Experiences"
+            "description": "Disable Tailored Experiences"
         },
         {
             "path": r"SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo",
             "name": "Enabled",
             "blocked_value": 0,
             "unblocked_value": 1,
-            "description": "Advertising ID"
+            "description": "Disable Advertising ID"
         },
     ]
     
@@ -145,22 +145,32 @@ class TelemetryBlocker:
         
         # Block registry settings
         for reg_key in self.TELEMETRY_REGISTRY_KEYS:
+            # Skip if already blocked to avoid permission errors
+            if self._check_registry_blocked(reg_key):
+                continue
+                
             success, error = self._set_registry_value(
                 reg_key["path"],
                 reg_key["name"],
                 reg_key["blocked_value"]
             )
             if not success:
-                errors.append(f"Registry {reg_key['name']}: {error}")
+                errors.append(f"Registry {reg_key['description']}: {error}")
         
         # Disable services
         for service in self.TELEMETRY_SERVICES:
+            if self._check_service_disabled(service["name"]):
+                continue
+                
             success, error = self._disable_service(service["name"])
             if not success:
                 errors.append(f"Service {service['name']}: {error}")
         
         # Disable scheduled tasks
         for task in self.TELEMETRY_TASKS:
+            if self._check_task_disabled(task):
+                continue
+                
             success, error = self._disable_task(task)
             if not success:
                 errors.append(f"Task {task}: {error}")
