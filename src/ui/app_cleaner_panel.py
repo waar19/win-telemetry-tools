@@ -6,7 +6,8 @@ UI for removing Windows built-in apps (bloatware).
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
     QFrame, QPushButton, QTableWidget, QTableWidgetItem,
-    QHeaderView, QCheckBox, QMessageBox, QProgressDialog
+    QHeaderView, QCheckBox, QMessageBox, QProgressDialog,
+    QLineEdit
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 
@@ -64,16 +65,13 @@ class AppCleanerPanel(QWidget):
         wrapper_layout = QVBoxLayout(self)
         wrapper_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Scroll area not needed if table handles it, but consistency...
-        # Table handles its own scroll, so we just use normal layout
-        
         layout = QVBoxLayout()
-        layout.setContentsMargins(32, 32, 32, 32)
-        layout.setSpacing(24)
+        layout.setContentsMargins(24, 24, 24, 24) # Reduced margins
+        layout.setSpacing(16)
         wrapper_layout.addLayout(layout)
         
         # Header
-        self.title = QLabel("App Cleaner") # TODO: Translation key
+        self.title = QLabel("App Cleaner") 
         self.title.setObjectName("sectionTitle")
         self.subtitle = QLabel("Remove unwanted pre-installed Windows applications")
         self.subtitle.setObjectName("subtitle")
@@ -86,6 +84,21 @@ class AppCleanerPanel(QWidget):
         self.status_label = QLabel("Click Scan to list apps...")
         self.status_label.setStyleSheet("font-weight: bold;")
         
+        # Search Bar
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Search apps...")
+        self.search_input.setFixedWidth(250)
+        self.search_input.setStyleSheet(f"""
+            QLineEdit {{
+                padding: 6px;
+                border: 1px solid {COLORS['border']};
+                border-radius: 4px;
+                color: {COLORS['text_main']};
+                background-color: {COLORS['bg_card']};
+            }}
+        """)
+        self.search_input.textChanged.connect(self.filter_apps)
+        
         self.btn_scan = QPushButton("Scan Apps")
         self.btn_scan.clicked.connect(self.start_scan)
         
@@ -96,6 +109,7 @@ class AppCleanerPanel(QWidget):
         
         toolbar.addWidget(self.status_label)
         toolbar.addStretch()
+        toolbar.addWidget(self.search_input)
         toolbar.addWidget(self.btn_scan)
         toolbar.addWidget(self.btn_remove)
         
@@ -105,7 +119,15 @@ class AppCleanerPanel(QWidget):
         self.table = QTableWidget()
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["Select", "App Name", "Publisher", "Type"])
-        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        
+        # Optimize Columns
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed) # Checkbox
+        self.table.setColumnWidth(0, 50)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch) # Name (Most Important)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch) # Publisher
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents) # Type
+        
         self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.itemChanged.connect(self._on_item_changed)
@@ -236,8 +258,25 @@ class AppCleanerPanel(QWidget):
         QMessageBox.information(self, "Cleanup Complete", msg)
         self.start_scan() # Refresh list
     
+    def filter_apps(self, text):
+        """Filter table rows based on search text."""
+        text = text.lower()
+        for row in range(self.table.rowCount()):
+            # Look in Name (col 1) and Publisher (col 2)
+            name_item = self.table.item(row, 1)
+            pub_item = self.table.item(row, 2)
+            
+            show_row = False
+            if name_item and text in name_item.text().lower():
+                show_row = True
+            elif pub_item and text in pub_item.text().lower():
+                show_row = True
+                
+            self.table.setRowHidden(row, not show_row)
+            
     def refresh_translations(self):
-        self.title.setText(tr("cleaner.title"))
-        self.subtitle.setText(tr("cleaner.subtitle"))
-        self.btn_scan.setText(tr("cleaner.scan"))
-        # Dynamic text handling for remove btn...
+        self.title.setText(tr("apps.title"))
+        self.subtitle.setText(tr("apps.subtitle"))
+        self.btn_scan.setText(tr("apps.scan"))
+        # Update search placeholder if we had a key, but hardcoded for now is fine or add key
+        # self.search_input.setPlaceholderText(tr("apps.search"))
