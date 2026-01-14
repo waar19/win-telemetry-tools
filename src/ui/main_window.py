@@ -8,7 +8,6 @@ from PyQt6.QtWidgets import (
     QPushButton, QStackedWidget, QLabel, QFrame
 )
 from PyQt6.QtCore import Qt, pyqtSlot
-from PyQt6.QtGui import QIcon
 
 from .styles import MAIN_STYLESHEET, COLORS
 from .dashboard_panel import DashboardPanel
@@ -16,6 +15,8 @@ from .telemetry_panel import TelemetryPanel
 from .permissions_panel import PermissionsPanel
 from .cleanup_panel import CleanupPanel
 from .firewall_panel import FirewallPanel
+from .network_panel import NetworkPanel
+from .update_panel import UpdatePanel
 from .settings_panel import SettingsPanel
 from .workers import DashboardDataWorker
 from ..modules.telemetry_blocker import TelemetryBlocker
@@ -75,6 +76,8 @@ class MainWindow(QMainWindow):
         self.btn_permissions = self._create_nav_btn(tr("nav.permissions"), "permissions")
         self.btn_cleanup = self._create_nav_btn(tr("nav.cleanup"), "cleanup")
         self.btn_firewall = self._create_nav_btn(tr("nav.firewall"), "firewall")
+        self.btn_network = self._create_nav_btn("Network Monitor", "network") # Todo: i18n
+        self.btn_updates = self._create_nav_btn("Windows Updates", "updates") # Todo: i18n
         self.btn_settings = self._create_nav_btn(tr("nav.settings"), "settings")
         
         sidebar_layout.addWidget(self.btn_dashboard)
@@ -82,6 +85,8 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(self.btn_permissions)
         sidebar_layout.addWidget(self.btn_cleanup)
         sidebar_layout.addWidget(self.btn_firewall)
+        sidebar_layout.addWidget(self.btn_network)
+        sidebar_layout.addWidget(self.btn_updates)
         
         sidebar_layout.addStretch()
         
@@ -98,12 +103,14 @@ class MainWindow(QMainWindow):
         # Content Area
         self.stack = QStackedWidget()
         
-        # Initialize panels (don't refresh data on init - lazy load)
+        # Initialize panels
         self.dashboard_panel = DashboardPanel()
         self.telemetry_panel = TelemetryPanel()
         self.permissions_panel = PermissionsPanel()
         self.cleanup_panel = CleanupPanel()
         self.firewall_panel = FirewallPanel()
+        self.network_panel = NetworkPanel()
+        self.update_panel = UpdatePanel()
         self.settings_panel = SettingsPanel()
         
         # Connect dashboard signals
@@ -119,6 +126,8 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.permissions_panel)
         self.stack.addWidget(self.cleanup_panel)
         self.stack.addWidget(self.firewall_panel)
+        self.stack.addWidget(self.network_panel)
+        self.stack.addWidget(self.update_panel)
         self.stack.addWidget(self.settings_panel)
         
         main_layout.addWidget(self.stack)
@@ -144,7 +153,9 @@ class MainWindow(QMainWindow):
             "permissions": (self.btn_permissions, 2),
             "cleanup": (self.btn_cleanup, 3),
             "firewall": (self.btn_firewall, 4),
-            "settings": (self.btn_settings, 5)
+            "network": (self.btn_network, 5),
+            "updates": (self.btn_updates, 6),
+            "settings": (self.btn_settings, 7)
         }
         
         if page_id in mapping:
@@ -155,10 +166,10 @@ class MainWindow(QMainWindow):
                 b.setChecked(False)
             btn.setChecked(True)
             
-            # Switch panel FIRST (instant UI response)
+            # Switch panel FIRST
             self.stack.setCurrentIndex(index)
             
-            # THEN refresh data in background
+            # THEN refresh data
             if index == 0:
                 self.update_dashboard_stats()
             elif index == 1:
@@ -169,6 +180,14 @@ class MainWindow(QMainWindow):
                 self.cleanup_panel.refresh_data()
             elif index == 4:
                 self.firewall_panel.refresh_data()
+            elif index == 5:
+                self.network_panel.start_monitoring()
+            elif index == 6:
+                self.update_panel.refresh_data()
+            
+            # Stop network scan when leaving the page
+            if index != 5:
+                self.network_panel.stop_monitoring()
     
     def update_dashboard_stats(self):
         """Update stats on the dashboard panel in background."""
@@ -215,6 +234,7 @@ class MainWindow(QMainWindow):
         self.btn_cleanup.setText(tr("nav.cleanup"))
         self.btn_firewall.setText(tr("nav.firewall"))
         self.btn_settings.setText(tr("nav.settings"))
+        # Todo: Update new buttons with i18n
         
         # Update panels
         self.dashboard_panel.refresh_translations()
@@ -222,3 +242,5 @@ class MainWindow(QMainWindow):
         self.permissions_panel.refresh_translations()
         self.cleanup_panel.refresh_translations()
         self.firewall_panel.refresh_translations()
+        self.network_panel.refresh_translations()
+        self.update_panel.refresh_translations()

@@ -2,38 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-01-14
+
+### Added
+- **Network Monitor**: Real-time traffic analysis to identify telemetry connections.
+- **Windows Update Control**: Manage update policies (Disable, Notify Only, Default).
+- **Browser Privacy Cleaner**: Clean cache, cookies, and history for Chrome, Edge, and Firefox.
+- **Network Panel**: Live table with process details and hostname resolution.
+
+## [1.2.0] - 2026-01-14
+
+### Added
+- **Privacy Profiles**: Export and import application settings via JSON.
+- **Auto-Start**: Option to launch application at Windows startup.
+- **Score History**: Dashboard chart tracking privacy score over last 30 days.
+- **Expanded Telemetry**: Added 15+ new blocking endpoints (Office, Edge, Cortana).
+
 ## [1.1.0] - 2026-01-14
 
 ### Added
-- **Internationalization (i18n)**: Multi-language support
-  - English (en)
-  - Spanish (es)
-  - German (de)
-- **Settings Panel**: New panel to configure application preferences
-- **Language Switcher**: Automatic system locale detection with manual override
-
-### Improved
-- **Async Loading**: All panels now load data in background threads for smoother navigation
-- **Sidebar Buttons**: Improved visual styling to look like actual buttons
-- **Error Handling**: Silently ignores non-existent services and scheduled tasks
+- **Internationalization (i18n)**: Multi-language support (English, Spanish, German).
+- **Settings Panel**: New panel to configure application preferences.
 
 ### Fixed
-- Fixed module import path issues for development and bundled modes
-- Fixed telemetry blocker warnings for non-existent Windows tasks
-
----
+- Fixed module import path issues.
+- Fixed telemetry blocker warnings.
 
 ## [1.0.0] - 2026-01-13
 
 ### Added
-- **Telemetry Blocker**: Module to block Windows telemetry via Registry, Services, and Scheduled Tasks.
-- **Permissions Manager**: Control over app access to Camera, Microphone, and Location.
-- **Tracking Cleaner**: Tools to clear Activity History and reset Advertising ID.
-- **Firewall Manager**: Block specific Microsoft telemetry endpoints.
-- **Privacy Dashboard**: Modern UI with dark theme and Privacy Score.
-- **Global Actions**: "Block All" and "Clean All" quick actions.
-
-### Technical
-- Initial release using Python and PyQt6.
-- Standalone executable support via PyInstaller.
-- GitHub Actions workflow for automated releases.
+- Initial release with Core Modules (Telemetry, Permissions, Cleaner, Firewall).
+- Dashboard UI with Privacy Score.

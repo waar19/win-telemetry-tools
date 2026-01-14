@@ -35,8 +35,6 @@ def main():
     # Set application metadata
     app.setApplicationName("Windows Privacy Dashboard")
     app.setOrganizationName("WinPrivacy")
-    app.setApplicationVersion("1.0.0")
-    
     window = MainWindow()
     window.show()
     

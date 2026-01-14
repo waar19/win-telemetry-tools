@@ -1,23 +1,24 @@
 """
 Cleanup Panel
-UI for cleaning tracking data.
+UI for cleaning tracking data including System and Browsers.
 """
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
     QScrollArea, QFrame, QCheckBox, QPushButton,
-    QMessageBox, QProgressBar
+    QMessageBox, QProgressBar, QTabWidget
 )
 from PyQt6.QtCore import Qt, pyqtSlot, QThread, pyqtSignal
 
 from .styles import COLORS
 from .workers import CleanupDataWorker
 from ..modules.tracking_cleaner import TrackingCleaner, CleanupItem
+from ..modules.browser_cleaner import BrowserCleaner, BrowserItem
 from ..i18n import tr
 
 
 class CleanWorker(QThread):
-    """Worker thread for cleanup operations."""
+    """Worker thread for system cleanup operations."""
     progress = pyqtSignal(int, int, str)
     finished = pyqtSignal(bool, str, int)
     
@@ -30,14 +31,58 @@ class CleanWorker(QThread):
         self.finished.emit(success, msg, bytes_cleaned)
 
 
+class BrowserCleanWorker(QThread):
+    """Worker thread for browser cleanup."""
+    finished = pyqtSignal(bool, str, int)
+    
+    def __init__(self, cleaner: BrowserCleaner, items: list):
+        super().__init__()
+        self.cleaner = cleaner
+        self.items = items
+    
+    def run(self):
+        success, msg, bytes_cleaned = self.cleaner.clean_items(self.items)
+        self.finished.emit(success, msg, bytes_cleaned)
+
+
+class BrowserItemWidget(QFrame):
+    """Widget for a browser cleanup item."""
+    def __init__(self, item: BrowserItem, parent=None):
+        super().__init__(parent)
+        self.item = item
+        self.setObjectName("card")
+        
+        layout = QHBoxLayout(self)
+        
+        self.checkbox = QCheckBox()
+        self.checkbox.setChecked(False) # Default unchecked for safety
+        
+        info_layout = QVBoxLayout()
+        name_label = QLabel(item.name)
+        name_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        desc_label = QLabel(item.description)
+        desc_label.setObjectName("muted")
+        info_layout.addWidget(name_label)
+        info_layout.addWidget(desc_label)
+        
+        type_label = QLabel(item.browser)
+        type_label.setStyleSheet(f"color: {COLORS['primary']}; font-weight: bold;")
+        
+        layout.addWidget(self.checkbox)
+        layout.addLayout(info_layout, stretch=1)
+        layout.addWidget(type_label)
+
+
 class CleanupPanel(QWidget):
     """Panel for cleaning tracking data."""
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self.cleaner = TrackingCleaner()
+        self.browser_cleaner = BrowserCleaner()
         self._worker = None
         self._is_loading = False
+        self._browser_widgets = []
         self._setup_ui()
     
     def _setup_ui(self):
@@ -46,58 +91,94 @@ class CleanupPanel(QWidget):
         layout.setSpacing(24)
         
         # Header
-        header_layout = QHBoxLayout()
-        
-        title_block = QVBoxLayout()
         self.title = QLabel(tr("cleanup.title"))
         self.title.setObjectName("sectionTitle")
-        self.subtitle = QLabel(tr("cleanup.subtitle"))
-        self.subtitle.setObjectName("subtitle")
-        title_block.addWidget(self.title)
-        title_block.addWidget(self.subtitle)
+        layout.addWidget(self.title)
         
-        header_layout.addLayout(title_block)
-        header_layout.addStretch()
+        # Tabs
+        self.tabs = QTabWidget()
         
-        # Action
+        # System Tab
+        self.system_tab = QWidget()
+        self._setup_system_tab()
+        self.tabs.addTab(self.system_tab, "Windows System")
+        
+        # Browsers Tab
+        self.browsers_tab = QWidget()
+        self._setup_browsers_tab()
+        self.tabs.addTab(self.browsers_tab, "Browsers")
+        
+        layout.addWidget(self.tabs)
+        
+        # Initialize
+        self.refresh_browser_list()
+    
+    def _setup_system_tab(self):
+        layout = QVBoxLayout(self.system_tab)
+        layout.setContentsMargins(16, 24, 16, 16)
+        
+        # Header
+        header = QHBoxLayout()
+        subtitle = QLabel("Clean system history and tracking data")
+        subtitle.setObjectName("subtitle")
         self.clean_btn = QPushButton(tr("cleanup.clean_all"))
         self.clean_btn.clicked.connect(self.start_cleanup)
+        header.addWidget(subtitle)
+        header.addStretch()
+        header.addWidget(self.clean_btn)
+        layout.addLayout(header)
         
-        header_layout.addWidget(self.clean_btn)
-        
-        layout.addLayout(header_layout)
-        
-        # Progress Bar
+        # Progress
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
         self.progress_label = QLabel("")
         self.progress_label.setVisible(False)
         self.progress_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
         layout.addWidget(self.progress_bar)
         layout.addWidget(self.progress_label)
-        
-        # Loading indicator
-        self.loading_label = QLabel(tr("common.loading"))
-        self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.loading_label.setObjectName("muted")
-        self.loading_label.setVisible(False)
-        layout.addWidget(self.loading_label)
-        
-        # Content Area
+
+        # List
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        
         self.content_widget = QWidget()
         self.content_layout = QVBoxLayout(self.content_widget)
         self.content_layout.setSpacing(12)
         self.content_layout.addStretch()
-        
         scroll.setWidget(self.content_widget)
         layout.addWidget(scroll)
+        
+        self.loading_label = QLabel(tr("common.loading"))
+        self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.loading_label.setVisible(False)
+        layout.addWidget(self.loading_label)
     
+    def _setup_browsers_tab(self):
+        layout = QVBoxLayout(self.browsers_tab)
+        layout.setContentsMargins(16, 24, 16, 16)
+        
+        # Header
+        header = QHBoxLayout()
+        subtitle = QLabel("Clean browsing data (Cache, Cookies, History)")
+        subtitle.setObjectName("subtitle")
+        self.clean_browser_btn = QPushButton("Clean Selected")
+        self.clean_browser_btn.clicked.connect(self.start_browser_cleanup)
+        header.addWidget(subtitle)
+        header.addStretch()
+        header.addWidget(self.clean_browser_btn)
+        layout.addLayout(header)
+        
+        # List
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        self.browser_content_widget = QWidget()
+        self.browser_content_layout = QVBoxLayout(self.browser_content_widget)
+        self.browser_content_layout.setSpacing(12)
+        self.browser_content_layout.addStretch()
+        scroll.setWidget(self.browser_content_widget)
+        layout.addWidget(scroll)
+
     def refresh_data(self):
-        """Reload cleanup items status in background."""
+        """Reload system items status in background."""
         if self._is_loading:
             return
         
@@ -108,7 +189,28 @@ class CleanupPanel(QWidget):
         self._worker = CleanupDataWorker(self.cleaner)
         self._worker.finished.connect(self._on_data_loaded)
         self._worker.start()
-    
+        
+    def refresh_browser_list(self):
+        """Load browser items."""
+        # Clear existing
+        while self.browser_content_layout.count() > 1:
+            item = self.browser_content_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        self._browser_widgets = []
+        
+        items = self.browser_cleaner.get_cleanable_items()
+        
+        if not items:
+            label = QLabel("No supported browsers found")
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.browser_content_layout.insertWidget(0, label)
+        else:
+            for item in items:
+                widget = BrowserItemWidget(item)
+                self._browser_widgets.append(widget)
+                self.browser_content_layout.insertWidget(self.browser_content_layout.count() - 1, widget)
+
     @pyqtSlot(list)
     def _on_data_loaded(self, items: list):
         """Handle loaded data."""
@@ -116,7 +218,6 @@ class CleanupPanel(QWidget):
         self.loading_label.setVisible(False)
         self.clean_btn.setEnabled(True)
         
-        # Clear existing items
         while self.content_layout.count() > 1:
             item = self.content_layout.takeAt(0)
             if item.widget():
@@ -129,16 +230,13 @@ class CleanupPanel(QWidget):
     def _create_item_widget(self, item: CleanupItem) -> QFrame:
         frame = QFrame()
         frame.setObjectName("card")
-        
         layout = QHBoxLayout(frame)
         
         info_layout = QVBoxLayout()
         name_label = QLabel(item.name)
         name_label.setStyleSheet("font-weight: bold; font-size: 15px;")
-        
         desc_label = QLabel(item.description)
         desc_label.setObjectName("muted")
-        
         info_layout.addWidget(name_label)
         info_layout.addWidget(desc_label)
         
@@ -148,7 +246,6 @@ class CleanupPanel(QWidget):
         
         layout.addLayout(info_layout, stretch=1)
         layout.addWidget(size_label)
-        
         return frame
     
     @pyqtSlot()
@@ -163,6 +260,26 @@ class CleanupPanel(QWidget):
         self.worker.finished.connect(self.cleanup_finished)
         self.worker.start()
     
+    @pyqtSlot()
+    def start_browser_cleanup(self):
+        selected_items = [w.item for w in self._browser_widgets if w.checkbox.isChecked()]
+        if not selected_items:
+            QMessageBox.warning(self, "Warning", "Please select at least one item to clean")
+            return
+            
+        confirm = QMessageBox.question(
+            self, "Confirm Cleanup", 
+            "Selected browser data will be permanently deleted. Continue?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if confirm != QMessageBox.StandardButton.Yes:
+            return
+
+        self.clean_browser_btn.setEnabled(False)
+        self.browser_worker = BrowserCleanWorker(self.browser_cleaner, selected_items)
+        self.browser_worker.finished.connect(self.browser_cleanup_finished)
+        self.browser_worker.start()
+
     @pyqtSlot(int, int, str)
     def update_progress(self, current, total, item_name):
         percentage = int((current / total) * 100)
@@ -181,12 +298,20 @@ class CleanupPanel(QWidget):
                                   f"{tr('cleanup.complete_msg')}\n{tr('cleanup.freed')} {cleaned_str}")
         else:
             QMessageBox.warning(self, tr("common.warning"), msg)
-            
         self.refresh_data()
+
+    @pyqtSlot(bool, str, int)
+    def browser_cleanup_finished(self, success, msg, bytes_cleaned):
+        self.clean_browser_btn.setEnabled(True)
+        if success:
+            cleaned_str = self.cleaner._format_size(bytes_cleaned)
+            QMessageBox.information(self, "Framework Cleanup", 
+                                  f"Cleanup complete.\nFreed space: {cleaned_str}")
+        else:
+            QMessageBox.warning(self, "Error", f"Errors occurred:\n{msg}")
+        self.refresh_browser_list()
     
     def refresh_translations(self):
-        """Update all text with current language."""
         self.title.setText(tr("cleanup.title"))
-        self.subtitle.setText(tr("cleanup.subtitle"))
         self.clean_btn.setText(tr("cleanup.clean_all"))
         self.loading_label.setText(tr("common.loading"))
