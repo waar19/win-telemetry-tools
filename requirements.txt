@@ -1,0 +1,7 @@
+# Core dependencies
+PyQt6>=6.6.0
+pywin32>=306
+psutil>=5.9.0
+
+# Build tools
+pyinstaller>=6.0.0
