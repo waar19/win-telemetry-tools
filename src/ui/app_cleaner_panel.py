@@ -93,7 +93,7 @@ class AppCleanerPanel(QWidget):
                 padding: 6px;
                 border: 1px solid {COLORS['border']};
                 border-radius: 4px;
-                color: {COLORS['text_main']};
+                color: {COLORS['text_primary']};
                 background-color: {COLORS['bg_card']};
             }}
         """)
