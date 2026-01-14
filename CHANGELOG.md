@@ -5,10 +5,17 @@ All notable changes to this project will be documented in this file.
 ## [1.3.0] - 2026-01-14
 
 ### Added
+
 - **Network Monitor**: Real-time traffic analysis to identify telemetry connections.
 - **Windows Update Control**: Manage update policies (Disable, Notify Only, Default).
 - **Browser Privacy Cleaner**: Clean cache, cookies, and history for Chrome, Edge, and Firefox.
-- **Network Panel**: Live table with process details and hostname resolution.
+- **Admin Rights Check**: Automatic detection and user warning if running without elevated privileges.
+- **Enhanced Internationalization**: Full translation support for all new modules (Network, Updates).
+
+### Fixed
+
+- **UI Responsiveness**: Added scrollable panels to support lower resolutions (e.g., 1366x768).
+- **Layout Issues**: Fixed text clipping in dashboard score and stats for High DPI screens.
 
 ## [1.2.0] - 2026-01-14
 
