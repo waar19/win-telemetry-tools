@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "Panel de Privacidad",
-    "version": "v1.0.0"
+    "version": "v1.3.0"
   },
   "nav": {
     "dashboard": "Inicio",
